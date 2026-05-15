@@ -1,0 +1,114 @@
+/**
+ * MARGINAL TRADE TRACKER - PRO MACRO
+ * Version: 2.0 (Support for Independent Buy/Sell & Auto-Formatting)
+ * 
+ * Instructions:
+ * 1. Create a Google Sheet.
+ * 2. Extensions > Apps Script.
+ * 3. Paste this code and Save.
+ * 4. Deploy > New Deployment > Web App.
+ * 5. Execute as: Me, Access: Anyone.
+ * 6. Copy the URL into the App Settings.
+ */
+
+function setupSheet(sheet) {
+  var headers = [["ID", "Type", "Buy Date", "Buy Amt ($)", "Sell Date", "Sell Amt ($)", "Net P&L ($)"]];
+  var headerRange = sheet.getRange(1, 1, 1, 7);
+  headerRange.setValues(headers);
+  
+  // Premium Styling
+  headerRange.setFontWeight("bold")
+             .setBackground("#09090b") // Matching app background
+             .setFontColor("#6366f1")   // Indigo accent
+             .setHorizontalAlignment("center");
+  
+  sheet.setFrozenRows(1);
+  
+  // Format Currency Columns
+  sheet.getRange("D:D").setNumberFormat("$#,##0.00");
+  sheet.getRange("F:G").setNumberFormat("$#,##0.00");
+  
+  sheet.autoResizeColumns(1, 7);
+}
+
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  try {
+    var payload = JSON.parse(e.postData.contents);
+    if (payload.action === 'sync') {
+      var data = payload.data || [];
+      
+      // Initialize sheet if empty
+      if (sheet.getLastRow() === 0) setupSheet(sheet);
+      
+      // Clear data but keep headers
+      var lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        sheet.getRange(2, 1, lastRow, 7).clearContent();
+        sheet.getRange(2, 1, lastRow, 7).setFontColor("#ffffff"); // Reset colors
+      }
+      
+      if (data.length > 0) {
+        var rows = [];
+        var colors = [];
+        
+        data.forEach(function(item) {
+          var buy = parseFloat(item.buyAmount) || 0;
+          var sell = parseFloat(item.sellAmount) || 0;
+          var profit = sell - buy;
+          
+          rows.push([
+            item.id,
+            (item.type || "pair").toUpperCase(),
+            item.buyDate || "-",
+            buy || "",
+            item.sellDate || "-",
+            sell || "",
+            profit
+          ]);
+          
+          // Row highlight color (Default whiteish for data)
+          var rowColors = ["#ffffff", "#94a3b8", "#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff"];
+          // Set Profit/Loss Color dynamically
+          rowColors[6] = profit >= 0 ? "#10b981" : "#ef4444"; 
+          colors.push(rowColors);
+        });
+        
+        var targetRange = sheet.getRange(2, 1, rows.length, 7);
+        targetRange.setValues(rows);
+        targetRange.setFontColors(colors);
+      }
+      
+      sheet.autoResizeColumns(1, 7);
+      
+      return ContentService.createTextOutput(JSON.stringify({ status: 'success', count: data.length }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  try {
+    if (sheet.getLastRow() <= 1) return ContentService.createTextOutput("[]").setMimeType(ContentService.MimeType.JSON);
+    
+    var data = sheet.getDataRange().getValues().slice(1);
+    var result = data.map(function(row) {
+      return {
+        id: row[0].toString(),
+        type: row[1].toString().toLowerCase(),
+        buyDate: row[2] === "-" ? undefined : row[2],
+        buyAmount: parseFloat(row[3]) || 0,
+        sellDate: row[4] === "-" ? undefined : row[4],
+        sellAmount: parseFloat(row[5]) || 0
+      };
+    });
+    
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput("[]").setMimeType(ContentService.MimeType.JSON);
+  }
+}

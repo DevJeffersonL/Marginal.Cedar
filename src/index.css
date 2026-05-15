@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Outfit", sans-serif;
+  
+  --color-background: #09090b;
+  --color-accent: #6366f1;
+  --color-profit: #10b981;
+  --color-loss: #ef4444;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-slate-200 font-sans antialiased selection:bg-accent/30;
+    margin: 0;
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/[0.03] backdrop-blur-[24px] border border-white/[0.08] border-t-white/[0.15] shadow-2xl;
+  }
+  
+  .glass-card {
+    @apply bg-white/[0.03] backdrop-blur-[24px] border border-white/[0.08] border-t-white/[0.15] rounded-2xl overflow-hidden;
+  }
+
+  .gradient-text-profit {
+    @apply bg-clip-text text-transparent bg-linear-to-br from-[#10b981] to-[#34d399] drop-shadow-[0_0_10px_rgba(16,185,129,0.3)];
+  }
+
+  .btn-glow {
+    @apply transition-all duration-300;
+  }
+  .btn-glow:hover {
+    @apply shadow-[0_0_20px_rgba(99,102,241,0.5)];
+  }
+}
+
+/* Ambient Background Orbs */
+.bg-orb {
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  filter: blur(120px);
+  z-index: -1;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.orb-1 {
+  background: #6366f1;
+  top: -100px;
+  left: -100px;
+  animation: float 20s infinite alternate ease-in-out;
+}
+
+.orb-2 {
+  background: #10b981;
+  bottom: -100px;
+  right: -100px;
+  animation: float 25s infinite alternate-reverse ease-in-out;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(10%, 15%) scale(1.1); }
+  100% { transform: translate(-10%, 5%) scale(0.9); }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
