@@ -1,6 +1,6 @@
 {
-  "name": "Marginal Trade Tracker",
-  "description": "A premium trade tracking application with real-time P&L analysis, glassmorphism UI, and Google Sheets synchronization.",
+  "name": "Marginal",
+  "description": "Professional trade intelligence and synchronization platform with real-time P&L tracking and Google Sheets integration.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }
