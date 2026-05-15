@@ -1,0 +1,17 @@
+{
+  "name": "Marginal Trade Tracker",
+  "short_name": "Marginal",
+  "description": "Professional trade intelligence and tracking app.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#6366f1",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2422/2422796.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
