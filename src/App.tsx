@@ -375,22 +375,6 @@ export default function App() {
                        {editingId ? 'Edit Transaction' : 'New Transaction'}
                     </h3>
                     
-                    {!editingId && (
-                      <div className="flex bg-white/5 p-1 rounded-lg border border-white/5">
-                        {(['pair', 'buy', 'sell'] as const).map((mode) => (
-                          <button
-                            key={mode}
-                            onClick={() => setFormMode(mode)}
-                            className={`px-3 py-1 text-[10px] uppercase font-bold rounded-md transition-all ${
-                              formMode === mode ? 'bg-accent text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'
-                            }`}
-                          >
-                            {mode === 'pair' ? 'Trade' : mode}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
                     {editingId && (
                        <button 
                         onClick={cancelEdit}
@@ -402,106 +386,91 @@ export default function App() {
                   </div>
 
                   <form onSubmit={handleAddTrade} className="space-y-6" noValidate>
-                    <AnimatePresence mode="wait">
-                      <motion.div 
-                        key={formMode}
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        transition={{ duration: 0.2 }}
-                        className="space-y-6"
-                      >
-                        {(formMode === 'pair' || formMode === 'buy') && (
-                          <div className="grid grid-cols-2 gap-4">
-                            {/* Buy Date */}
-                            <div className="relative group/field">
-                              <input 
-                                type="date" 
-                                value={formData.buyDate}
-                                onChange={e => {
-                                  setFormData({...formData, buyDate: e.target.value});
-                                  setValidationErrors(prev => prev.filter(err => err !== 'buyDate'));
-                                }}
-                                className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono ${
-                                  validationErrors.includes('buyDate') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
-                                }`}
-                              />
-                              <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all ${
-                                validationErrors.includes('buyDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
-                              }`}>
-                                Buy Date
-                              </label>
-                            </div>
-                            {/* Buy Amount */}
-                            <div className="relative group/field">
-                              <input 
-                                type="number" 
-                                placeholder=" "
-                                step="0.01"
-                                value={formData.buyAmount}
-                                onChange={e => {
-                                  setFormData({...formData, buyAmount: e.target.value});
-                                  setValidationErrors(prev => prev.filter(err => err !== 'buyAmount'));
-                                }}
-                                className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
-                                  validationErrors.includes('buyAmount') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
-                                }`}
-                              />
-                              <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-1 peer-focus:text-[9px] ${
-                                validationErrors.includes('buyAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
-                              }`}>
-                                Buy Price ($)
-                              </label>
-                            </div>
-                          </div>
-                        )}
+                    <div className="space-y-6">
+                      {/* Buy Section */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="relative group/field">
+                          <input 
+                            type="date" 
+                            value={formData.buyDate}
+                            onChange={e => {
+                              setFormData({...formData, buyDate: e.target.value});
+                              setValidationErrors(prev => prev.filter(err => err !== 'buyDate'));
+                            }}
+                            className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono ${
+                              validationErrors.includes('buyDate') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                            }`}
+                          />
+                          <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all ${
+                            validationErrors.includes('buyDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                          }`}>
+                            Buy Date
+                          </label>
+                        </div>
+                        <div className="relative group/field">
+                          <input 
+                            type="number" 
+                            placeholder=" "
+                            step="0.01"
+                            value={formData.buyAmount}
+                            onChange={e => {
+                              setFormData({...formData, buyAmount: e.target.value});
+                              setValidationErrors(prev => prev.filter(err => err !== 'buyAmount'));
+                            }}
+                            className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
+                              validationErrors.includes('buyAmount') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                            }`}
+                          />
+                          <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-1 peer-focus:text-[9px] ${
+                            validationErrors.includes('buyAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                          }`}>
+                            Buy Price ($)
+                          </label>
+                        </div>
+                      </div>
 
-                        {(formMode === 'pair' || formMode === 'sell') && (
-                          <div className="grid grid-cols-2 gap-4">
-                            {/* Sell Date */}
-                            <div className="relative group/field">
-                              <input 
-                                type="date" 
-                                value={formData.sellDate}
-                                onChange={e => {
-                                  setFormData({...formData, sellDate: e.target.value});
-                                  setValidationErrors(prev => prev.filter(err => err !== 'sellDate'));
-                                }}
-                                className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono ${
-                                  validationErrors.includes('sellDate') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
-                                }`}
-                              />
-                              <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all ${
-                                validationErrors.includes('sellDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
-                              }`}>
-                                Sell Date
-                              </label>
-                            </div>
-                            {/* Sell Amount */}
-                            <div className="relative group/field">
-                              <input 
-                                type="number" 
-                                placeholder=" "
-                                step="0.01"
-                                value={formData.sellAmount}
-                                onChange={e => {
-                                  setFormData({...formData, sellAmount: e.target.value});
-                                  setValidationErrors(prev => prev.filter(err => err !== 'sellAmount'));
-                                }}
-                                className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
-                                  validationErrors.includes('sellAmount') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
-                                }`}
-                              />
-                              <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-1 peer-focus:text-[9px] ${
-                                validationErrors.includes('sellAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
-                              }`}>
-                                Sell Price ($)
-                              </label>
-                            </div>
-                          </div>
-                        )}
-                      </motion.div>
-                    </AnimatePresence>
+                      {/* Sell Section */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="relative group/field">
+                          <input 
+                            type="date" 
+                            value={formData.sellDate}
+                            onChange={e => {
+                              setFormData({...formData, sellDate: e.target.value});
+                              setValidationErrors(prev => prev.filter(err => err !== 'sellDate'));
+                            }}
+                            className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono ${
+                              validationErrors.includes('sellDate') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                            }`}
+                          />
+                          <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all ${
+                            validationErrors.includes('sellDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                          }`}>
+                            Sell Date
+                          </label>
+                        </div>
+                        <div className="relative group/field">
+                          <input 
+                            type="number" 
+                            placeholder=" "
+                            step="0.01"
+                            value={formData.sellAmount}
+                            onChange={e => {
+                              setFormData({...formData, sellAmount: e.target.value});
+                              setValidationErrors(prev => prev.filter(err => err !== 'sellAmount'));
+                            }}
+                            className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
+                              validationErrors.includes('sellAmount') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                            }`}
+                          />
+                          <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-1 peer-focus:text-[9px] ${
+                            validationErrors.includes('sellAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                          }`}>
+                            Sell Price ($)
+                          </label>
+                        </div>
+                      </div>
+                    </div>
                     
                     <button 
                       type="submit"
