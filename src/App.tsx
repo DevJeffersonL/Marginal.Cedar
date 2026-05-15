@@ -145,10 +145,21 @@ export default function App() {
     if (!gsUrl) return;
     setIsSyncing(true);
     try {
+      // Map data strictly to ensure it matches common spreadsheet column structures (A: ID, B: Type, C: Buy Date, D: Buy Amount, E: Sell Date, F: Sell Amount)
+      const mappedData = data.map(t => ({
+        id: t.id,
+        type: t.type,
+        buyDate: t.buyDate || '',
+        buyAmount: t.buyAmount || 0,
+        sellDate: t.sellDate || '',
+        sellAmount: t.sellAmount || 0
+      }));
+
       await fetch(gsUrl, {
         method: 'POST',
-        mode: 'no-cors', // Apps Script often requires no-cors for simple posts
-        body: JSON.stringify({ action: 'sync', data }),
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync', data: mappedData }),
       });
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       setLastSynced(time);
@@ -586,11 +597,14 @@ export default function App() {
                                 <div className="min-w-0">
                                   {trade.type !== 'sell' && trade.buyAmount ? (
                                     <>
-                                      <p className="text-[12px] sm:text-sm font-semibold truncate">${Number(trade.buyAmount).toLocaleString()}</p>
-                                      <p className="text-[8px] sm:text-[10px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>
+                                      <p className="text-[13px] sm:text-sm font-bold truncate text-white">${Number(trade.buyAmount).toLocaleString()}</p>
+                                      <p className="text-[9px] sm:text-[10px] font-mono text-slate-500 uppercase tracking-tight">{formatDate(trade.buyDate)}</p>
                                     </>
                                   ) : (
-                                    <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-600 block">NO BUY DATA</span>
+                                    <div className="flex flex-col">
+                                      <span className="text-[10px] font-bold text-slate-700 tracking-tighter">N/A</span>
+                                      <span className="text-[8px] text-slate-800 uppercase font-bold">Sell Position</span>
+                                    </div>
                                   )}
                                 </div>
                               </div>
@@ -599,11 +613,14 @@ export default function App() {
                               <div className="min-w-0">
                                 {trade.type !== 'buy' && trade.sellAmount ? (
                                   <>
-                                    <p className="text-[12px] sm:text-sm font-semibold truncate">${Number(trade.sellAmount).toLocaleString()}</p>
-                                    <p className="text-[8px] sm:text-[10px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
+                                    <p className="text-[13px] sm:text-sm font-bold truncate text-white">${Number(trade.sellAmount).toLocaleString()}</p>
+                                    <p className="text-[9px] sm:text-[10px] font-mono text-slate-500 uppercase tracking-tight">{formatDate(trade.sellDate)}</p>
                                   </>
                                 ) : (
-                                  <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-600 block">OPEN POSITION</span>
+                                  <div className="flex flex-col">
+                                    <span className="text-[10px] font-bold text-slate-700 tracking-tighter">OPEN</span>
+                                    <span className="text-[8px] text-slate-800 uppercase font-bold">Buy Only</span>
+                                  </div>
                                 )}
                               </div>
                             </td>
