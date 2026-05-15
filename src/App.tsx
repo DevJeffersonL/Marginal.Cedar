@@ -150,9 +150,9 @@ export default function App() {
         id: t.id,
         type: t.type,
         buyDate: t.buyDate || '',
-        buyAmount: t.buyAmount || 0,
+        buyAmount: (t.type !== 'sell' && t.buyAmount) ? t.buyAmount : '',
         sellDate: t.sellDate || '',
-        sellAmount: t.sellAmount || 0
+        sellAmount: (t.type !== 'buy' && t.sellAmount) ? t.sellAmount : ''
       }));
 
       await fetch(gsUrl, {
@@ -394,42 +394,63 @@ export default function App() {
               {/* Left Column */}
               <div className="space-y-6 sm:space-y-8">
                 {/* Hero Card */}
-                <div className="glass-card p-6 sm:p-10 flex flex-col items-center justify-center text-center relative group min-h-40 sm:min-h-48">
-                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="glass-card p-6 sm:p-10 flex flex-col items-center justify-center text-center relative group min-h-40 sm:min-h-48 overflow-hidden bg-gradient-to-br from-white/[0.03] to-transparent">
+                  {/* Subtle Background Mark */}
+                  <div className="absolute -bottom-10 -right-10 opacity-5 pointer-events-none rotate-12">
+                    <TrendingUp size={200} />
+                  </div>
+                  
+                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <button 
                       onClick={handleAiAnalysis}
                       disabled={isAiAnalyzing}
-                      className="p-2 bg-white/5 hover:bg-accent rounded-lg text-slate-400 hover:text-white transition-all flex items-center gap-2 group/ai btn-glow"
+                      className="p-2 bg-white/5 hover:bg-accent rounded-lg text-slate-400 hover:text-white transition-all flex items-center gap-2 group/ai btn-glow border border-white/5"
                     >
                       <BrainCircuit size={16} className={isAiAnalyzing ? 'animate-spin' : ''} />
-                      <span className="text-[10px] uppercase font-bold tracking-tighter">Analyze</span>
+                      <span className="text-[10px] uppercase font-bold tracking-widest">Consult AI</span>
                     </button>
                   </div>
 
-                  <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em] text-slate-400 mb-2">Total Net Profit</p>
-                  <h2 className={`text-4xl sm:text-6xl font-heading font-black tabular-nums transition-all duration-500 ${
-                    totalNetProfit >= 0 ? 'gradient-text-profit' : 'text-loss drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]'
-                  }`}>
-                    ${totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </h2>
+                  <p className="text-[9px] sm:text-[10px] uppercase font-mono tracking-[0.4em] text-slate-500 mb-4 flex items-center gap-2">
+                    <span className="w-8 h-[1px] bg-white/10"></span>
+                    Aggregated Net Performance
+                    <span className="w-8 h-[1px] bg-white/10"></span>
+                  </p>
                   
-                  {totalNetProfit > 0 && (
-                    <div className="mt-4 flex items-center gap-2 text-xs text-profit font-medium">
-                      <span className="bg-profit/20 px-2 py-0.5 rounded">Bullish</span>
-                      <span>Trending Up</span>
+                  <div className="relative">
+                    <h2 className={`text-4xl sm:text-7xl font-heading font-black tabular-nums transition-all duration-700 tracking-tighter ${
+                      totalNetProfit >= 0 ? 'gradient-text-profit' : 'text-loss drop-shadow-[0_0_20px_rgba(239,68,68,0.2)]'
+                    }`}>
+                      ${totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </h2>
+                    {totalNetProfit !== 0 && (
+                      <div className={`absolute -top-4 -right-12 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-current/20 ${
+                        totalNetProfit > 0 ? 'text-profit bg-profit/5' : 'text-loss bg-loss/5'
+                      }`}>
+                        {totalNetProfit > 0 ? 'P&L POSITIVE' : 'P&L NEGATIVE'}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="mt-6 flex items-center gap-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">
+                    <div className="flex items-center gap-1.5">
+                      <div className={`w-1.5 h-1.5 rounded-full ${totalNetProfit >= 0 ? 'bg-profit shadow-[0_0_8px_#10b981]' : 'bg-loss animate-pulse'}`} />
+                      <span>{totalNetProfit >= 0 ? 'Market Bullish' : 'Market Bearish'}</span>
                     </div>
-                  )}
+                    <span className="text-white/10">|</span>
+                    <span>{trades.length} Verified Records</span>
+                  </div>
                   
                   {aiAnalysis && (
                     <motion.div 
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      className="mt-8 p-4 bg-white/5 rounded-xl text-left border border-white/5"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="mt-8 p-5 bg-accent/5 backdrop-blur-xl rounded-2xl text-left border border-accent/20 relative group/insight"
                     >
-                       <p className="text-[10px] uppercase font-bold text-accent mb-2 flex items-center gap-2">
-                         <BrainCircuit size={12} /> AI Insights
-                       </p>
-                       <p className="text-xs text-slate-400 leading-relaxed font-light italic">
+                       <div className="absolute -top-3 left-6 px-3 py-1 bg-accent text-[9px] font-bold text-white uppercase tracking-widest rounded-full shadow-lg">
+                         Proprietary Insight
+                       </div>
+                       <p className="text-xs text-slate-300 leading-relaxed font-medium italic">
                          "{aiAnalysis}"
                        </p>
                     </motion.div>
@@ -601,9 +622,9 @@ export default function App() {
                                       <p className="text-[9px] sm:text-[10px] font-mono text-slate-500 uppercase tracking-tight">{formatDate(trade.buyDate)}</p>
                                     </>
                                   ) : (
-                                    <div className="flex flex-col">
-                                      <span className="text-[10px] font-bold text-slate-700 tracking-tighter">N/A</span>
-                                      <span className="text-[8px] text-slate-800 uppercase font-bold">Sell Position</span>
+                                    <div className="flex flex-col opacity-40">
+                                      <span className="text-[10px] font-mono font-bold text-slate-400 tracking-tighter">NO_BUY_DATA</span>
+                                      <span className="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Entry Restricted</span>
                                     </div>
                                   )}
                                 </div>
@@ -617,9 +638,9 @@ export default function App() {
                                     <p className="text-[9px] sm:text-[10px] font-mono text-slate-500 uppercase tracking-tight">{formatDate(trade.sellDate)}</p>
                                   </>
                                 ) : (
-                                  <div className="flex flex-col">
-                                    <span className="text-[10px] font-bold text-slate-700 tracking-tighter">OPEN</span>
-                                    <span className="text-[8px] text-slate-800 uppercase font-bold">Buy Only</span>
+                                  <div className="flex flex-col opacity-40">
+                                    <span className="text-[10px] font-mono font-bold text-slate-400 tracking-tighter">OPEN_POSITION</span>
+                                    <span className="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Exit Required</span>
                                   </div>
                                 )}
                               </div>
