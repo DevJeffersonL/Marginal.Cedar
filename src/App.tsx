@@ -49,7 +49,18 @@ export default function App() {
   const [formMode, setFormMode] = useState<'pair' | 'buy' | 'sell'>('pair');
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Form State
+  // Helper: Human-friendly date formatting
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr || dateStr === '-') return '-';
+    try {
+      // Handle potential ISO strings by taking only the YYYY-MM-DD part
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return dateStr;
+      return date.toISOString().split('T')[0];
+    } catch {
+      return dateStr;
+    }
+  };
   const [formData, setFormData] = useState({
     buyDate: '',
     buyAmount: '',
@@ -261,37 +272,37 @@ export default function App() {
       <div className="bg-orb orb-2" />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-white/5 py-4 px-6 md:px-12 flex justify-between items-center transition-all duration-500">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20">
-            <TrendingUp className="text-white" size={20} />
+      <header className="sticky top-0 z-50 glass border-b border-white/5 py-3 md:py-4 px-4 sm:px-6 md:px-12 flex flex-col sm:flex-row justify-between items-center gap-4 transition-all duration-500">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20 shrink-0">
+            <TrendingUp className="text-white" size={18} />
           </div>
           <div>
-            <h1 className="font-heading font-bold text-xl tracking-tight leading-none">MARGINAL</h1>
-            <p className="text-[10px] font-mono text-slate-500 mt-1 uppercase tracking-widest">Trade Intelligence</p>
+            <h1 className="font-heading font-bold text-lg sm:text-xl tracking-tight leading-none">MARGINAL</h1>
+            <p className="text-[9px] sm:text-[10px] font-mono text-slate-500 mt-0.5 sm:mt-1 uppercase tracking-widest">Trade Intelligence</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="flex flex-col items-end">
-            <div className="flex items-center gap-2 glass-card px-3 py-1.5 border-white/5">
-              <div className={`w-2 h-2 rounded-full ${isSyncing ? 'bg-amber-400 animate-pulse shadow-[0_0_8px_#fbbf24]' : gsUrl ? 'bg-profit shadow-[0_0_8px_#10b981]' : 'bg-slate-600'}`} />
-              <span className="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
-                {isSyncing ? 'Synchronizing' : gsUrl ? 'Cloud Connected' : 'Local Storage'}
+        <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t border-white/5 sm:border-0 pt-3 sm:pt-0">
+          <div className="flex flex-col items-start sm:items-end">
+            <div className="flex items-center gap-2 glass-card px-2 sm:px-3 py-1 sm:py-1.5 border-white/5">
+              <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${isSyncing ? 'bg-amber-400 animate-pulse shadow-[0_0_8px_#fbbf24]' : gsUrl ? 'bg-profit shadow-[0_0_8px_#10b981]' : 'bg-slate-600'}`} />
+              <span className="text-[9px] sm:text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+                {isSyncing ? 'Syncing' : gsUrl ? 'Cloud' : 'Local'}
               </span>
               {gsUrl && (
                 <button 
                   onClick={() => fetchRemoteTrades(gsUrl)}
                   disabled={isSyncing}
-                  className="ml-2 p-1 hover:bg-white/10 rounded transition-colors text-slate-500 hover:text-white disabled:opacity-50"
+                  className="ml-1 p-1 hover:bg-white/10 rounded transition-colors text-slate-500 hover:text-white disabled:opacity-50"
                   title="Manual Refresh"
                 >
-                  <RefreshCw size={12} className={isSyncing ? 'animate-spin' : ''} />
+                  <RefreshCw size={10} className={isSyncing ? 'animate-spin' : ''} />
                 </button>
               )}
             </div>
             {lastSynced && (
-              <span className="text-[8px] text-slate-500 uppercase tracking-tighter mt-1">Last sync: {lastSynced}</span>
+              <span className="text-[7px] sm:text-[8px] text-slate-500 uppercase tracking-tighter mt-1">Sync: {lastSynced}</span>
             )}
           </div>
           
@@ -312,7 +323,7 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-6 md:p-12">
+      <main className="max-w-7xl mx-auto p-4 sm:p-8 md:p-12">
         <AnimatePresence mode="wait">
           {activeView === 'dashboard' ? (
             <motion.div 
@@ -325,7 +336,7 @@ export default function App() {
               {/* Left Column */}
               <div className="space-y-8">
                 {/* Hero Card */}
-                <div className="glass-card p-10 flex flex-col items-center justify-center text-center relative group min-h-48">
+                <div className="glass-card p-6 sm:p-10 flex flex-col items-center justify-center text-center relative group min-h-40 sm:min-h-48">
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button 
                       onClick={handleAiAnalysis}
@@ -337,8 +348,8 @@ export default function App() {
                     </button>
                   </div>
 
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400 mb-2">Total Net Profit</p>
-                  <h2 className={`text-6xl font-heading font-black tabular-nums transition-all duration-500 ${
+                  <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em] text-slate-400 mb-2">Total Net Profit</p>
+                  <h2 className={`text-4xl sm:text-6xl font-heading font-black tabular-nums transition-all duration-500 ${
                     totalNetProfit >= 0 ? 'gradient-text-profit' : 'text-loss drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]'
                   }`}>
                     ${totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
@@ -368,10 +379,10 @@ export default function App() {
                 </div>
 
                 {/* Form Card */}
-                <div className={`glass-card p-8 transition-all duration-500 ${editingId ? 'ring-2 ring-accent ring-inset bg-accent/5' : ''}`}>
-                  <div className="flex justify-between items-center mb-8">
-                    <h3 className="font-heading font-bold text-lg flex items-center gap-2">
-                       {editingId ? <Pencil className="text-accent" size={20} /> : <PlusCircle className="text-accent" size={20} />}
+                <div className={`glass-card p-5 sm:p-8 transition-all duration-500 ${editingId ? 'ring-2 ring-accent ring-inset bg-accent/5' : ''}`}>
+                  <div className="flex justify-between items-center mb-6 sm:mb-8">
+                    <h3 className="font-heading font-bold text-base sm:text-lg flex items-center gap-2">
+                       {editingId ? <Pencil className="text-accent" size={18} /> : <PlusCircle className="text-accent" size={18} />}
                        {editingId ? 'Edit Transaction' : 'New Transaction'}
                     </h3>
                     
@@ -484,23 +495,23 @@ export default function App() {
               </div>
 
               {/* Right Column - Ledger */}
-              <div className="glass-card min-h-[500px] flex flex-col">
-                <div className="p-8 border-b border-white/5 flex justify-between items-center">
-                   <h3 className="font-heading font-bold text-lg flex items-center gap-2">
+              <div className="glass-card min-h-[400px] flex flex-col overflow-hidden">
+                <div className="p-5 sm:p-8 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                   <h3 className="font-heading font-bold text-base sm:text-lg flex items-center gap-2">
                     <TableIcon className="text-accent" size={20} />
                     Transaction Ledger
                   </h3>
-                  <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{trades.length} Records</span>
+                  <span className="text-[9px] sm:text-[10px] font-mono text-slate-500 uppercase tracking-widest">{trades.length} Records</span>
                 </div>
                 
-                <div className="overflow-x-auto flex-1 p-6 scroll-hide">
-                  <table className="w-full text-left border-separate border-spacing-y-3">
+                <div className="overflow-x-auto flex-1 p-4 sm:p-6 scroll-hide">
+                  <table className="w-full text-left border-separate border-spacing-y-2 sm:border-spacing-y-3">
                     <thead className="sticky top-0 bg-background/80 backdrop-blur-sm z-20">
                       <tr>
-                        <th className="px-6 pb-3 text-[10px] uppercase tracking-widest font-bold text-slate-500">Buy Info</th>
-                        <th className="px-6 pb-3 text-[10px] uppercase tracking-widest font-bold text-slate-500">Sell Info</th>
-                        <th className="px-6 pb-3 text-[10px] uppercase tracking-widest font-bold text-slate-500">Net Profit</th>
-                        <th className="px-6 pb-3 text-right pr-12 text-[10px] uppercase tracking-widest font-bold text-slate-500">Action</th>
+                        <th className="px-3 sm:px-6 pb-2 sm:pb-3 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold text-slate-500">Buy Side</th>
+                        <th className="px-3 sm:px-6 pb-2 sm:pb-3 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold text-slate-500">Sell Side</th>
+                        <th className="px-3 sm:px-6 pb-2 sm:pb-3 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold text-slate-500">Profit</th>
+                        <th className="px-3 sm:px-6 pb-2 sm:pb-3 text-right text-[9px] sm:text-[10px] uppercase tracking-widest font-bold text-slate-500 pr-4 sm:pr-8">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -520,60 +531,62 @@ export default function App() {
                             animate={{ opacity: 1 }}
                             className="hover:bg-white/10 transition-colors group bg-white/5"
                           >
-                            <td className="px-6 py-4 rounded-l-xl">
-                              <div className="flex items-center gap-3">
-                                <span className={`w-1.5 h-8 rounded-full ${
+                            <td className="px-3 sm:px-6 py-3 sm:py-4 rounded-l-xl">
+                              <div className="flex items-center gap-2 sm:gap-3">
+                                <span className={`w-1 h-6 sm:w-1.5 sm:h-8 rounded-full shrink-0 ${
                                   trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'
                                 }`} />
-                                <div>
+                                <div className="min-w-0">
                                   {trade.buyAmount ? (
                                     <>
-                                      <p className="text-sm font-semibold">${trade.buyAmount.toLocaleString()}</p>
-                                      <p className="text-[10px] font-mono text-slate-500">{trade.buyDate}</p>
+                                      <p className="text-[12px] sm:text-sm font-semibold truncate">${trade.buyAmount.toLocaleString()}</p>
+                                      <p className="text-[8px] sm:text-[10px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>
                                     </>
                                   ) : (
-                                    <span className="text-[9px] uppercase font-black text-slate-600 tracking-tighter">Independent Sell</span>
+                                    <span className="text-[8px] sm:text-[9px] uppercase font-black text-slate-600 tracking-tighter">Independent Sell</span>
                                   )}
                                 </div>
                               </div>
                             </td>
-                            <td className="px-6 py-4">
-                              {trade.sellAmount ? (
-                                <>
-                                  <p className="text-sm font-semibold">${trade.sellAmount.toLocaleString()}</p>
-                                  <p className="text-[10px] font-mono text-slate-500">{trade.sellDate}</p>
-                                </>
-                              ) : (
-                                <span className="text-[9px] uppercase font-black text-slate-600 tracking-tighter">Independent Buy</span>
-                              )}
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <div className="min-w-0">
+                                {trade.sellAmount ? (
+                                  <>
+                                    <p className="text-[12px] sm:text-sm font-semibold truncate">${trade.sellAmount.toLocaleString()}</p>
+                                    <p className="text-[8px] sm:text-[10px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
+                                  </>
+                                ) : (
+                                  <span className="text-[8px] sm:text-[9px] uppercase font-black text-slate-600 tracking-tighter">Independent Buy</span>
+                                )}
+                              </div>
                             </td>
-                            <td className="px-6 py-4">
-                              <div className="flex flex-col gap-1">
-                                <span className={`text-[8px] self-start px-2 py-0.5 rounded-full font-bold uppercase tracking-widest ${
+                            <td className="px-3 sm:px-6 py-3 sm:py-4">
+                              <div className="flex flex-col gap-0.5 sm:gap-1">
+                                <span className={`text-[7px] sm:text-[8px] self-start px-1.5 py-0.5 rounded-full font-bold uppercase tracking-widest ${
                                   trade.type === 'pair' ? 'bg-accent/20 text-accent' : trade.type === 'buy' ? 'bg-profit/20 text-profit' : 'bg-loss/20 text-loss'
                                 }`}>
                                   {trade.type}
                                 </span>
-                                <p className={`font-mono text-sm font-bold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                  {profit >= 0 ? '+' : ''}${profit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                <p className={`font-mono text-[12px] sm:text-sm font-bold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                  {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </p>
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-right rounded-r-xl pr-6">
-                              <div className="flex items-center justify-end gap-2">
+                            <td className="px-3 sm:px-6 py-3 sm:py-4 text-right rounded-r-xl pr-3 sm:pr-6">
+                              <div className="flex items-center justify-end gap-1 sm:gap-2">
                                 <button 
                                   onClick={() => handleEditTrade(trade)}
-                                  className="p-2 text-slate-600 hover:text-accent transition-colors group-hover:bg-accent/10 rounded-lg"
+                                  className="p-1.5 sm:p-2 text-slate-600 hover:text-accent transition-colors hover:bg-accent/10 rounded-lg"
                                   title="Edit"
                                 >
-                                  <Pencil size={16} />
+                                  <Pencil size={14} className="sm:w-4 sm:h-4" />
                                 </button>
                                 <button 
                                   onClick={() => handleDeleteTrade(trade.id)}
-                                  className="p-2 text-slate-600 hover:text-loss transition-colors group-hover:bg-loss/10 rounded-lg"
+                                  className="p-1.5 sm:p-2 text-slate-600 hover:text-loss transition-colors hover:bg-loss/10 rounded-lg"
                                   title="Delete"
                                 >
-                                  <Trash2 size={16} />
+                                  <Trash2 size={14} className="sm:w-4 sm:h-4" />
                                 </button>
                               </div>
                             </td>
@@ -618,7 +631,7 @@ export default function App() {
                       )}
                       {dailyReports.map((report, idx) => (
                         <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
-                          <td className="px-8 py-5 text-sm font-medium">{report.date}</td>
+                          <td className="px-8 py-5 text-sm font-medium">{formatDate(report.date)}</td>
                           <td className={`px-8 py-5 text-sm font-bold text-right ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
                              {report.netCashflow >= 0 ? '+' : ''}${report.netCashflow.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                           </td>
@@ -634,8 +647,8 @@ export default function App() {
       </main>
 
       {/* Persistent Footer Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-8 pt-4 pointer-events-none">
-        <div className="glass shadow-2xl rounded-2xl border border-white/10 flex gap-4 p-2 pointer-events-auto">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-6 sm:pb-8 pt-4 pointer-events-none">
+        <div className="glass shadow-2xl rounded-2xl border border-white/10 flex gap-1 sm:gap-4 p-1.5 sm:p-2 pointer-events-auto scale-90 sm:scale-100">
           <NavTab id="dashboard" label="Dashboard" icon={LayoutDashboard} />
           <NavTab id="reports" label="Daily P&L" icon={CalendarDays} />
         </div>
