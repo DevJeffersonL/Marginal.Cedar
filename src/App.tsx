@@ -382,7 +382,6 @@ export default function App() {
                             <div className="relative group/field">
                               <input 
                                 type="date" 
-                                required
                                 value={formData.buyDate}
                                 onChange={e => setFormData({...formData, buyDate: e.target.value})}
                                 className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-mono"
@@ -397,7 +396,6 @@ export default function App() {
                                 type="number" 
                                 placeholder=" "
                                 step="0.01"
-                                required
                                 value={formData.buyAmount}
                                 onChange={e => setFormData({...formData, buyAmount: e.target.value})}
                                 className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-mono placeholder:opacity-0"
@@ -415,7 +413,6 @@ export default function App() {
                             <div className="relative group/field">
                               <input 
                                 type="date" 
-                                required
                                 value={formData.sellDate}
                                 onChange={e => setFormData({...formData, sellDate: e.target.value})}
                                 className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-mono"
@@ -430,7 +427,6 @@ export default function App() {
                                 type="number" 
                                 placeholder=" "
                                 step="0.01"
-                                required
                                 value={formData.sellAmount}
                                 onChange={e => setFormData({...formData, sellAmount: e.target.value})}
                                 className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-mono placeholder:opacity-0"
