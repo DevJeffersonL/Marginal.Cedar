@@ -53,10 +53,9 @@ export default function App() {
   const formatDate = (dateStr?: string) => {
     if (!dateStr || dateStr === '-') return '-';
     try {
-      // Handle potential ISO strings by taking only the YYYY-MM-DD part
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return dateStr;
-      return date.toISOString().split('T')[0];
+      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' });
     } catch {
       return dateStr;
     }
@@ -79,6 +78,9 @@ export default function App() {
       setGsUrl(savedUrl);
       fetchRemoteTrades(savedUrl);
     }
+    
+    const savedSyncTime = localStorage.getItem('last_synced_time');
+    if (savedSyncTime) setLastSynced(savedSyncTime);
   }, []);
 
   const saveLocally = (updatedTrades: Trade[]) => {
@@ -95,7 +97,9 @@ export default function App() {
       if (Array.isArray(data)) {
         setTrades(data);
         localStorage.setItem('marginal_trades', JSON.stringify(data));
-        setLastSynced(new Date().toLocaleTimeString());
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        setLastSynced(time);
+        localStorage.setItem('last_synced_time', time);
       }
     } catch (error) {
       console.error("Remote Sync Failed:", error);
@@ -113,7 +117,9 @@ export default function App() {
         mode: 'no-cors', // Apps Script often requires no-cors for simple posts
         body: JSON.stringify({ action: 'sync', data }),
       });
-      setLastSynced(new Date().toLocaleTimeString());
+      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      setLastSynced(time);
+      localStorage.setItem('last_synced_time', time);
     } catch (error) {
       console.error("Sheets Sync Error:", error);
     } finally {
