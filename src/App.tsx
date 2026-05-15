@@ -110,27 +110,62 @@ export default function App() {
     }
   };
 
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+
   // --- Logic ---
   const handleAddTrade = (e: React.FormEvent) => {
     e.preventDefault();
     
+    const errors: string[] = [];
     const buyPrice = Number(formData.buyAmount);
     const sellPrice = Number(formData.sellAmount);
+    const hasBuy = formData.buyDate || buyPrice;
+    const hasSell = formData.sellDate || sellPrice;
 
     if (formMode === 'pair') {
-      if (!formData.buyDate || !buyPrice || !formData.sellDate || !sellPrice) return;
+      // In pair mode, we need at least one side.
+      // If they started filling one side, they must complete it.
+      if (!hasBuy && !hasSell) {
+        errors.push('buyDate', 'buyAmount', 'sellDate', 'sellAmount');
+      } else {
+        if (hasBuy) {
+          if (!formData.buyDate) errors.push('buyDate');
+          if (!buyPrice) errors.push('buyAmount');
+        }
+        if (hasSell) {
+          if (!formData.sellDate) errors.push('sellDate');
+          if (!sellPrice) errors.push('sellAmount');
+        }
+      }
     } else if (formMode === 'buy') {
-      if (!formData.buyDate || !buyPrice) return;
+      if (!formData.buyDate) errors.push('buyDate');
+      if (!buyPrice) errors.push('buyAmount');
     } else if (formMode === 'sell') {
-      if (!formData.sellDate || !sellPrice) return;
+      if (!formData.sellDate) errors.push('sellDate');
+      if (!sellPrice) errors.push('sellAmount');
+    }
+
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
+    setValidationErrors([]);
+    
+    // Determine the actual type based on what was filled if in 'pair' mode
+    let effectiveType = formMode;
+    if (formMode === 'pair') {
+      if (hasBuy && hasSell) effectiveType = 'pair';
+      else if (hasBuy) effectiveType = 'buy';
+      else if (hasSell) effectiveType = 'sell';
     }
 
     const tradeData: Partial<Trade> = {
-      type: formMode,
-      buyDate: formMode !== 'sell' ? formData.buyDate : undefined,
-      buyAmount: formMode !== 'sell' ? buyPrice : 0,
-      sellDate: formMode !== 'buy' ? formData.sellDate : undefined,
-      sellAmount: formMode !== 'buy' ? sellPrice : 0,
+      type: effectiveType as 'pair' | 'buy' | 'sell',
+      buyDate: (effectiveType !== 'sell') ? formData.buyDate : undefined,
+      buyAmount: (effectiveType !== 'sell') ? buyPrice : 0,
+      sellDate: (effectiveType !== 'buy') ? formData.sellDate : undefined,
+      sellAmount: (effectiveType !== 'buy') ? sellPrice : 0,
     };
 
     let updated: Trade[];
@@ -366,7 +401,7 @@ export default function App() {
                     )}
                   </div>
 
-                  <form onSubmit={handleAddTrade} className="space-y-6">
+                  <form onSubmit={handleAddTrade} className="space-y-6" noValidate>
                     <AnimatePresence mode="wait">
                       <motion.div 
                         key={formMode}
@@ -383,10 +418,17 @@ export default function App() {
                               <input 
                                 type="date" 
                                 value={formData.buyDate}
-                                onChange={e => setFormData({...formData, buyDate: e.target.value})}
-                                className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-mono"
+                                onChange={e => {
+                                  setFormData({...formData, buyDate: e.target.value});
+                                  setValidationErrors(prev => prev.filter(err => err !== 'buyDate'));
+                                }}
+                                className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono ${
+                                  validationErrors.includes('buyDate') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                                }`}
                               />
-                              <label className="absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest text-slate-500 transition-all peer-focus:text-accent">
+                              <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all ${
+                                validationErrors.includes('buyDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                              }`}>
                                 Buy Date
                               </label>
                             </div>
@@ -397,10 +439,17 @@ export default function App() {
                                 placeholder=" "
                                 step="0.01"
                                 value={formData.buyAmount}
-                                onChange={e => setFormData({...formData, buyAmount: e.target.value})}
-                                className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-mono placeholder:opacity-0"
+                                onChange={e => {
+                                  setFormData({...formData, buyAmount: e.target.value});
+                                  setValidationErrors(prev => prev.filter(err => err !== 'buyAmount'));
+                                }}
+                                className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
+                                  validationErrors.includes('buyAmount') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                                }`}
                               />
-                              <label className="absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest text-slate-500 transition-all peer-focus:text-accent peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-1 peer-focus:text-[9px]">
+                              <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-1 peer-focus:text-[9px] ${
+                                validationErrors.includes('buyAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                              }`}>
                                 Buy Price ($)
                               </label>
                             </div>
@@ -414,10 +463,17 @@ export default function App() {
                               <input 
                                 type="date" 
                                 value={formData.sellDate}
-                                onChange={e => setFormData({...formData, sellDate: e.target.value})}
-                                className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-mono"
+                                onChange={e => {
+                                  setFormData({...formData, sellDate: e.target.value});
+                                  setValidationErrors(prev => prev.filter(err => err !== 'sellDate'));
+                                }}
+                                className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono ${
+                                  validationErrors.includes('sellDate') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                                }`}
                               />
-                              <label className="absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest text-slate-500 transition-all peer-focus:text-accent">
+                              <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all ${
+                                validationErrors.includes('sellDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                              }`}>
                                 Sell Date
                               </label>
                             </div>
@@ -428,10 +484,17 @@ export default function App() {
                                 placeholder=" "
                                 step="0.01"
                                 value={formData.sellAmount}
-                                onChange={e => setFormData({...formData, sellAmount: e.target.value})}
-                                className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:border-accent/50 focus:ring-1 focus:ring-accent/50 transition-all font-mono placeholder:opacity-0"
+                                onChange={e => {
+                                  setFormData({...formData, sellAmount: e.target.value});
+                                  setValidationErrors(prev => prev.filter(err => err !== 'sellAmount'));
+                                }}
+                                className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
+                                  validationErrors.includes('sellAmount') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                                }`}
                               />
-                              <label className="absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest text-slate-500 transition-all peer-focus:text-accent peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-1 peer-focus:text-[9px]">
+                              <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-1 peer-focus:text-[9px] ${
+                                validationErrors.includes('sellAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                              }`}>
                                 Sell Price ($)
                               </label>
                             </div>
@@ -489,14 +552,21 @@ export default function App() {
                             className="hover:bg-white/10 transition-colors group bg-white/5"
                           >
                             <td className="px-6 py-4 rounded-l-xl">
-                              {trade.buyAmount ? (
-                                <>
-                                  <p className="text-sm font-semibold">${trade.buyAmount.toLocaleString()}</p>
-                                  <p className="text-[10px] font-mono text-slate-500">{trade.buyDate}</p>
-                                </>
-                              ) : (
-                                <p className="text-xs text-slate-600 font-mono italic">Independent Sell</p>
-                              )}
+                              <div className="flex items-center gap-3">
+                                <span className={`w-1.5 h-8 rounded-full ${
+                                  trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'
+                                }`} />
+                                <div>
+                                  {trade.buyAmount ? (
+                                    <>
+                                      <p className="text-sm font-semibold">${trade.buyAmount.toLocaleString()}</p>
+                                      <p className="text-[10px] font-mono text-slate-500">{trade.buyDate}</p>
+                                    </>
+                                  ) : (
+                                    <span className="text-[9px] uppercase font-black text-slate-600 tracking-tighter">Independent Sell</span>
+                                  )}
+                                </div>
+                              </div>
                             </td>
                             <td className="px-6 py-4">
                               {trade.sellAmount ? (
@@ -505,11 +575,20 @@ export default function App() {
                                   <p className="text-[10px] font-mono text-slate-500">{trade.sellDate}</p>
                                 </>
                               ) : (
-                                <p className="text-xs text-slate-600 font-mono italic">Independent Buy</p>
+                                <span className="text-[9px] uppercase font-black text-slate-600 tracking-tighter">Independent Buy</span>
                               )}
                             </td>
-                            <td className={`px-6 py-4 font-mono text-sm font-bold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                              {profit >= 0 ? '+' : ''}${profit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            <td className="px-6 py-4">
+                              <div className="flex flex-col gap-1">
+                                <span className={`text-[8px] self-start px-2 py-0.5 rounded-full font-bold uppercase tracking-widest ${
+                                  trade.type === 'pair' ? 'bg-accent/20 text-accent' : trade.type === 'buy' ? 'bg-profit/20 text-profit' : 'bg-loss/20 text-loss'
+                                }`}>
+                                  {trade.type}
+                                </span>
+                                <p className={`font-mono text-sm font-bold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                  {profit >= 0 ? '+' : ''}${profit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </p>
+                              </div>
                             </td>
                             <td className="px-6 py-4 text-right rounded-r-xl pr-6">
                               <div className="flex items-center justify-end gap-2">
