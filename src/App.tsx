@@ -51,11 +51,14 @@ export default function App() {
 
   // Helper: Human-friendly date formatting
   const formatDate = (dateStr?: string) => {
-    if (!dateStr || dateStr === '-') return '-';
+    if (!dateStr || dateStr === 'undefined' || dateStr === 'null' || dateStr === '-') return '-';
     try {
+      // If it's a long string like "Fri May 15 2026...", handle it
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return dateStr;
-      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' });
+      
+      // Return YYYY-MM-DD for consistency or a short localized format
+      return date.toISOString().split('T')[0];
     } catch {
       return dateStr;
     }
@@ -95,8 +98,19 @@ export default function App() {
       const response = await fetch(url);
       const data = await response.json();
       if (Array.isArray(data)) {
-        setTrades(data);
-        localStorage.setItem('marginal_trades', JSON.stringify(data));
+        // Sanitize data from Sheets (ensure numbers are numbers, etc.)
+        const sanitizedData = data.map((item: any) => ({
+          ...item,
+          id: item.id || crypto.randomUUID(),
+          buyAmount: item.buyAmount ? Number(item.buyAmount) : 0,
+          sellAmount: item.sellAmount ? Number(item.sellAmount) : 0,
+          buyDate: item.buyDate ? String(item.buyDate) : undefined,
+          sellDate: item.sellDate ? String(item.sellDate) : undefined,
+          type: item.type || (item.buyAmount && item.sellAmount ? 'pair' : item.buyAmount ? 'buy' : 'sell')
+        }));
+        
+        setTrades(sanitizedData);
+        localStorage.setItem('marginal_trades', JSON.stringify(sanitizedData));
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         setLastSynced(time);
         localStorage.setItem('last_synced_time', time);
@@ -543,26 +557,26 @@ export default function App() {
                                   trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'
                                 }`} />
                                 <div className="min-w-0">
-                                  {trade.buyAmount ? (
+                                  {Number(trade.buyAmount) > 0 ? (
                                     <>
-                                      <p className="text-[12px] sm:text-sm font-semibold truncate">${trade.buyAmount.toLocaleString()}</p>
+                                      <p className="text-[12px] sm:text-sm font-semibold truncate">${Number(trade.buyAmount).toLocaleString()}</p>
                                       <p className="text-[8px] sm:text-[10px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>
                                     </>
                                   ) : (
-                                    <span className="text-[8px] sm:text-[9px] uppercase font-black text-slate-600 tracking-tighter">Independent Sell</span>
+                                    <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-600 block">N/A (Sell)</span>
                                   )}
                                 </div>
                               </div>
                             </td>
                             <td className="px-3 sm:px-6 py-3 sm:py-4">
                               <div className="min-w-0">
-                                {trade.sellAmount ? (
+                                {Number(trade.sellAmount) > 0 ? (
                                   <>
-                                    <p className="text-[12px] sm:text-sm font-semibold truncate">${trade.sellAmount.toLocaleString()}</p>
+                                    <p className="text-[12px] sm:text-sm font-semibold truncate">${Number(trade.sellAmount).toLocaleString()}</p>
                                     <p className="text-[8px] sm:text-[10px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
                                   </>
                                 ) : (
-                                  <span className="text-[8px] sm:text-[9px] uppercase font-black text-slate-600 tracking-tighter">Independent Buy</span>
+                                  <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-600 block">N/A (Buy)</span>
                                 )}
                               </div>
                             </td>
