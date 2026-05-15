@@ -141,18 +141,18 @@ export default function App() {
     }
   };
 
+  // Standardize values for sync
   const syncToSheets = async (data: Trade[]) => {
     if (!gsUrl) return;
     setIsSyncing(true);
     try {
-      // Map data strictly to ensure it matches common spreadsheet column structures (A: ID, B: Type, C: Buy Date, D: Buy Amount, E: Sell Date, F: Sell Amount)
       const mappedData = data.map(t => ({
         id: t.id,
         type: t.type,
         buyDate: t.buyDate || '',
-        buyAmount: (t.type !== 'sell' && t.buyAmount) ? t.buyAmount : '',
+        buyAmount: t.buyAmount || 0,
         sellDate: t.sellDate || '',
-        sellAmount: (t.type !== 'buy' && t.sellAmount) ? t.sellAmount : ''
+        sellAmount: t.sellAmount || 0
       }));
 
       await fetch(gsUrl, {
@@ -172,6 +172,34 @@ export default function App() {
   };
 
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [showMacroCode, setShowMacroCode] = useState(false);
+
+  const macroCode = `function doGet() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = sheet.getDataRange().getValues();
+  var headers = data.shift();
+  var json = data.map(function(row) {
+    var obj = {};
+    headers.forEach(function(header, i) {
+      obj[header.toLowerCase().replace(/\\s+/g, '')] = row[i];
+    });
+    return obj;
+  });
+  return ContentService.createTextOutput(JSON.stringify(json)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  var params = JSON.parse(e.postData.contents);
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  if (params.action === 'sync') {
+    sheet.clear();
+    sheet.appendRow(['ID', 'Type', 'Buy Date', 'Buy Amount', 'Sell Date', 'Sell Amount']);
+    params.data.forEach(function(t) {
+      sheet.appendRow([t.id, t.type, t.buyDate, t.buyAmount, t.sellDate, t.sellAmount]);
+    });
+    return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
+  }
+}`;
 
   // --- Logic ---
   const handleAddTrade = (e: React.FormEvent) => {
@@ -364,22 +392,76 @@ export default function App() {
             )}
           </div>
           
-          <button 
-            onClick={() => {
-              const url = prompt("Enter Google Apps Script Web App URL:", gsUrl);
-              if (url !== null) {
-                setGsUrl(url);
-                localStorage.setItem('gsUrl', url);
-                if (url) fetchRemoteTrades(url);
-              }
-            }}
-            className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-400 hover:text-white"
-            title="Settings"
-          >
-            <Settings2 size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={() => setShowMacroCode(true)}
+              className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-400 hover:text-white"
+              title="Get Sync Macro"
+            >
+              <TableIcon size={18} />
+            </button>
+            <button 
+              onClick={() => {
+                const url = prompt("Enter Google Apps Script Web App URL:", gsUrl);
+                if (url !== null) {
+                  setGsUrl(url);
+                  localStorage.setItem('gsUrl', url);
+                  if (url) fetchRemoteTrades(url);
+                }
+              }}
+              className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-400 hover:text-white"
+              title="Settings"
+            >
+              <Settings2 size={18} />
+            </button>
+          </div>
         </div>
       </header>
+
+      {/* Macro Modal */}
+      <AnimatePresence>
+        {showMacroCode && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="glass-card w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col"
+            >
+              <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                <div>
+                  <h3 className="font-heading font-bold text-lg">Sync Macro Code</h3>
+                  <p className="text-xs text-slate-500">Copy this into Google Apps Script Extensions</p>
+                  <p className="text-[10px] text-accent mt-1 uppercase font-bold">Tip: Format Columns D & F as 'Number' in Sheets</p>
+                </div>
+                <button onClick={() => setShowMacroCode(false)} className="p-2 hover:bg-white/10 rounded-full">
+                  <XCircle size={20} />
+                </button>
+              </div>
+              <div className="p-6 overflow-auto bg-slate-950">
+                <pre className="text-[10px] sm:text-xs font-mono text-profit leading-relaxed whitespace-pre">
+                  {macroCode}
+                </pre>
+              </div>
+              <div className="p-6 border-t border-white/5 flex gap-4">
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(macroCode);
+                    alert("Copied to clipboard!");
+                  }}
+                  className="flex-1 bg-accent py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-accent/80 transition-all"
+                >
+                  Copy Code
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="max-w-7xl mx-auto p-4 sm:p-8 md:p-12">
         <AnimatePresence mode="wait">
@@ -583,103 +665,161 @@ export default function App() {
                   <span className="text-[9px] sm:text-[10px] font-mono text-slate-500 uppercase tracking-widest">{trades.length} Records</span>
                 </div>
                 
-                <div className="overflow-x-auto flex-1 p-4 sm:p-6 scroll-hide">
-                  <table className="w-full text-left border-separate border-spacing-y-2 sm:border-spacing-y-3">
-                    <thead className="sticky top-0 bg-background/80 backdrop-blur-sm z-20">
-                      <tr>
-                        <th className="px-3 sm:px-6 pb-2 sm:pb-3 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold text-slate-500">Buy Side</th>
-                        <th className="px-3 sm:px-6 pb-2 sm:pb-3 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold text-slate-500">Sell Side</th>
-                        <th className="px-3 sm:px-6 pb-2 sm:pb-3 text-[9px] sm:text-[10px] uppercase tracking-widest font-bold text-slate-500">Profit</th>
-                        <th className="px-3 sm:px-6 pb-2 sm:pb-3 text-right text-[9px] sm:text-[10px] uppercase tracking-widest font-bold text-slate-500 pr-4 sm:pr-8">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {trades.length === 0 && (
+                <div className="flex-1 p-4 sm:p-6">
+                  {/* Desktop Table View */}
+                  <div className="hidden sm:block overflow-x-auto">
+                    <table className="w-full text-left border-separate border-spacing-y-3">
+                      <thead>
                         <tr>
-                          <td colSpan={4} className="px-6 py-24 text-center text-slate-500 font-light italic">
-                            No transactions recorded yet.
-                          </td>
+                          <th className="px-6 pb-3 text-[10px] uppercase tracking-widest font-bold text-slate-500">Buy Side</th>
+                          <th className="px-6 pb-3 text-[10px] uppercase tracking-widest font-bold text-slate-500">Sell Side</th>
+                          <th className="px-6 pb-3 text-[10px] uppercase tracking-widest font-bold text-slate-500">Profit</th>
+                          <th className="px-6 pb-3 text-right text-[10px] uppercase tracking-widest font-bold text-slate-500 pr-8">Actions</th>
                         </tr>
-                      )}
-                      {trades.map((trade) => {
-                        const profit = (trade.sellAmount || 0) - (trade.buyAmount || 0);
-                        return (
-                          <motion.tr 
-                            key={trade.id} 
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="hover:bg-white/10 transition-colors group bg-white/5"
-                          >
-                            <td className="px-3 sm:px-6 py-3 sm:py-4 rounded-l-xl">
-                              <div className="flex items-center gap-2 sm:gap-3">
-                                <span className={`w-1 h-6 sm:w-1.5 sm:h-8 rounded-full shrink-0 ${
-                                  trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'
-                                }`} />
+                      </thead>
+                      <tbody>
+                        {trades.length === 0 && (
+                          <tr>
+                            <td colSpan={4} className="px-6 py-24 text-center text-slate-500 font-light italic">
+                              No transactions recorded yet.
+                            </td>
+                          </tr>
+                        )}
+                        {trades.map((trade) => {
+                          const profit = (trade.sellAmount || 0) - (trade.buyAmount || 0);
+                          const isBuyAvailable = trade.type !== 'sell' && (trade.buyAmount !== 0 || trade.buyDate);
+                          const isSellAvailable = trade.type !== 'buy' && (trade.sellAmount !== 0 || trade.sellDate);
+
+                          return (
+                            <motion.tr 
+                              key={trade.id} 
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              className="hover:bg-white/10 transition-colors group bg-white/5"
+                            >
+                              <td className="px-6 py-4 rounded-l-xl">
+                                <div className="flex items-center gap-3">
+                                  <span className={`w-1 h-8 rounded-full shrink-0 ${
+                                    trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'
+                                  }`} />
+                                  <div className="min-w-0">
+                                    {isBuyAvailable ? (
+                                      <>
+                                        <p className="text-sm font-bold truncate text-white">${Number(trade.buyAmount).toLocaleString()}</p>
+                                        <p className="text-[10px] font-mono text-slate-500 uppercase tracking-tight">{formatDate(trade.buyDate)}</p>
+                                      </>
+                                    ) : (
+                                      <div className="flex flex-col opacity-40">
+                                        <span className="text-[10px] font-mono font-bold text-slate-400 tracking-tighter">NO_BUY</span>
+                                        <span className="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Standalone</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4">
                                 <div className="min-w-0">
-                                  {trade.type !== 'sell' && trade.buyAmount ? (
+                                  {isSellAvailable ? (
                                     <>
-                                      <p className="text-[13px] sm:text-sm font-bold truncate text-white">${Number(trade.buyAmount).toLocaleString()}</p>
-                                      <p className="text-[9px] sm:text-[10px] font-mono text-slate-500 uppercase tracking-tight">{formatDate(trade.buyDate)}</p>
+                                      <p className="text-sm font-bold truncate text-white">${Number(trade.sellAmount).toLocaleString()}</p>
+                                      <p className="text-[10px] font-mono text-slate-500 uppercase tracking-tight">{formatDate(trade.sellDate)}</p>
                                     </>
                                   ) : (
                                     <div className="flex flex-col opacity-40">
-                                      <span className="text-[10px] font-mono font-bold text-slate-400 tracking-tighter">NO_BUY_DATA</span>
-                                      <span className="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Entry Restricted</span>
+                                      <span className="text-[10px] font-mono font-bold text-slate-400 tracking-tighter">OPEN</span>
+                                      <span className="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Exit Req</span>
                                     </div>
                                   )}
                                 </div>
-                              </div>
-                            </td>
-                            <td className="px-3 sm:px-6 py-3 sm:py-4">
-                              <div className="min-w-0">
-                                {trade.type !== 'buy' && trade.sellAmount ? (
-                                  <>
-                                    <p className="text-[13px] sm:text-sm font-bold truncate text-white">${Number(trade.sellAmount).toLocaleString()}</p>
-                                    <p className="text-[9px] sm:text-[10px] font-mono text-slate-500 uppercase tracking-tight">{formatDate(trade.sellDate)}</p>
-                                  </>
-                                ) : (
-                                  <div className="flex flex-col opacity-40">
-                                    <span className="text-[10px] font-mono font-bold text-slate-400 tracking-tighter">OPEN_POSITION</span>
-                                    <span className="text-[8px] text-slate-500 uppercase font-bold tracking-widest">Exit Required</span>
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-                            <td className="px-3 sm:px-6 py-3 sm:py-4">
-                              <div className="flex flex-col gap-0.5 sm:gap-1">
-                                <span className={`text-[7px] sm:text-[8px] self-start px-1.5 py-0.5 rounded-full font-bold uppercase tracking-widest ${
-                                  trade.type === 'pair' ? 'bg-accent/20 text-accent' : trade.type === 'buy' ? 'bg-profit/20 text-profit' : 'bg-loss/20 text-loss'
-                                }`}>
-                                  {trade.type}
-                                </span>
-                                <p className={`font-mono text-[12px] sm:text-sm font-bold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                  {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                </p>
-                              </div>
-                            </td>
-                            <td className="px-3 sm:px-6 py-3 sm:py-4 text-right rounded-r-xl pr-3 sm:pr-6">
-                              <div className="flex items-center justify-end gap-1 sm:gap-2">
-                                <button 
-                                  onClick={() => handleEditTrade(trade)}
-                                  className="p-1.5 sm:p-2 text-slate-600 hover:text-accent transition-colors hover:bg-accent/10 rounded-lg"
-                                  title="Edit"
-                                >
-                                  <Pencil size={14} className="sm:w-4 sm:h-4" />
-                                </button>
-                                <button 
-                                  onClick={() => handleDeleteTrade(trade.id)}
-                                  className="p-1.5 sm:p-2 text-slate-600 hover:text-loss transition-colors hover:bg-loss/10 rounded-lg"
-                                  title="Delete"
-                                >
-                                  <Trash2 size={14} className="sm:w-4 sm:h-4" />
-                                </button>
-                              </div>
-                            </td>
-                          </motion.tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="flex flex-col gap-1">
+                                  <span className={`text-[8px] self-start px-1.5 py-0.5 rounded-full font-bold uppercase tracking-widest ${
+                                    trade.type === 'pair' ? 'bg-accent/20 text-accent' : trade.type === 'buy' ? 'bg-profit/20 text-profit' : 'bg-loss/20 text-loss'
+                                  }`}>
+                                    {trade.type}
+                                  </span>
+                                  <p className={`font-mono text-sm font-bold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                    {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                  </p>
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 text-right rounded-r-xl pr-6">
+                                <div className="flex items-center justify-end gap-2">
+                                  <button onClick={() => handleEditTrade(trade)} className="p-2 text-slate-600 hover:text-accent transition-colors hover:bg-accent/10 rounded-lg">
+                                    <Pencil size={14} />
+                                  </button>
+                                  <button onClick={() => handleDeleteTrade(trade.id)} className="p-2 text-slate-600 hover:text-loss transition-colors hover:bg-loss/10 rounded-lg">
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              </td>
+                            </motion.tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Mobile/List View */}
+                  <div className="sm:hidden space-y-4">
+                    {trades.length === 0 && (
+                      <p className="py-20 text-center text-slate-500 font-light italic">No records.</p>
+                    )}
+                    {trades.map((trade) => {
+                      const profit = (trade.sellAmount || 0) - (trade.buyAmount || 0);
+                      const isBuyAvailable = trade.type !== 'sell' && (trade.buyAmount !== 0 || trade.buyDate);
+                      const isSellAvailable = trade.type !== 'buy' && (trade.sellAmount !== 0 || trade.sellDate);
+
+                      return (
+                        <motion.div 
+                          key={trade.id}
+                          layout
+                          className="glass-card p-4 flex flex-col gap-4 border-white/5 active:scale-[0.99] transition-transform"
+                        >
+                          <div className="flex justify-between items-start">
+                            <span className={`text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-[0.2em] ${
+                              trade.type === 'pair' ? 'bg-accent/20 text-accent' : trade.type === 'buy' ? 'bg-profit/20 text-profit' : 'bg-loss/20 text-loss'
+                            }`}>
+                              {trade.type} Position
+                            </span>
+                            <div className="flex gap-2">
+                              <button onClick={() => handleEditTrade(trade)} className="p-2 bg-white/5 rounded-lg text-slate-400"><Pencil size={12} /></button>
+                              <button onClick={() => handleDeleteTrade(trade.id)} className="p-2 bg-white/5 rounded-lg text-slate-400"><Trash2 size={12} /></button>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                               <p className="text-[8px] uppercase font-bold text-slate-500 tracking-wider">Entry Side</p>
+                               {isBuyAvailable ? (
+                                 <div>
+                                   <p className="text-sm font-bold text-white">${Number(trade.buyAmount).toLocaleString()}</p>
+                                   <p className="text-[9px] font-mono text-slate-600">{formatDate(trade.buyDate)}</p>
+                                 </div>
+                               ) : <p className="text-[10px] font-bold text-slate-700 italic">N/A</p>}
+                            </div>
+                            <div className="space-y-1">
+                               <p className="text-[8px] uppercase font-bold text-slate-500 tracking-wider">Exit Side</p>
+                               {isSellAvailable ? (
+                                 <div>
+                                   <p className="text-sm font-bold text-white">${Number(trade.sellAmount).toLocaleString()}</p>
+                                   <p className="text-[9px] font-mono text-slate-600">{formatDate(trade.sellDate)}</p>
+                                 </div>
+                               ) : <p className="text-[10px] font-bold text-slate-700 italic">Open</p>}
+                            </div>
+                          </div>
+
+                          <div className={`p-3 rounded-lg flex justify-between items-center ${profit >= 0 ? 'bg-profit/10' : 'bg-loss/10'}`}>
+                            <span className="text-[10px] font-bold uppercase text-slate-500">Net Return</span>
+                            <span className={`font-mono text-sm font-black ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                              {profit >= 0 ? '+' : '-'}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                            </span>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </motion.div>
