@@ -283,18 +283,18 @@ export default function App() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t border-white/5 sm:border-0 pt-3 sm:pt-0">
+        <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto border-t border-white/5 sm:border-0 pt-3 sm:pt-0">
           <div className="flex flex-col items-start sm:items-end">
-            <div className="flex items-center gap-2 glass-card px-2 sm:px-3 py-1 sm:py-1.5 border-white/5">
-              <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${isSyncing ? 'bg-amber-400 animate-pulse shadow-[0_0_8px_#fbbf24]' : gsUrl ? 'bg-profit shadow-[0_0_8px_#10b981]' : 'bg-slate-600'}`} />
-              <span className="text-[9px] sm:text-[10px] uppercase font-semibold text-slate-400 tracking-wider">
+            <div className="flex items-center gap-1.5 glass-card px-2 sm:px-3 py-1 sm:py-1.5 border-white/5">
+              <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 ${isSyncing ? 'bg-amber-400 animate-pulse shadow-[0_0_8px_#fbbf24]' : gsUrl ? 'bg-profit shadow-[0_0_8px_#10b981]' : 'bg-slate-600'}`} />
+              <span className="text-[8px] sm:text-[10px] uppercase font-semibold text-slate-400 tracking-wider whitespace-nowrap">
                 {isSyncing ? 'Syncing' : gsUrl ? 'Cloud' : 'Local'}
               </span>
               {gsUrl && (
                 <button 
                   onClick={() => fetchRemoteTrades(gsUrl)}
                   disabled={isSyncing}
-                  className="ml-1 p-1 hover:bg-white/10 rounded transition-colors text-slate-500 hover:text-white disabled:opacity-50"
+                  className="p-0.5 sm:p-1 hover:bg-white/10 rounded transition-colors text-slate-500 hover:text-white disabled:opacity-50"
                   title="Manual Refresh"
                 >
                   <RefreshCw size={10} className={isSyncing ? 'animate-spin' : ''} />
@@ -334,7 +334,7 @@ export default function App() {
               className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-8"
             >
               {/* Left Column */}
-              <div className="space-y-8">
+              <div className="space-y-6 sm:space-y-8">
                 {/* Hero Card */}
                 <div className="glass-card p-6 sm:p-10 flex flex-col items-center justify-center text-center relative group min-h-40 sm:min-h-48">
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -397,9 +397,9 @@ export default function App() {
                   </div>
 
                   <form onSubmit={handleAddTrade} className="space-y-6" noValidate>
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                       {/* Buy Section */}
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="relative group/field">
                           <input 
                             type="date" 
@@ -441,7 +441,7 @@ export default function App() {
                       </div>
 
                       {/* Sell Section */}
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="relative group/field">
                           <input 
                             type="date" 

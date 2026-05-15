@@ -43,26 +43,35 @@
 /* Ambient Background Orbs */
 .bg-orb {
   position: fixed;
-  width: 500px;
-  height: 500px;
+  width: 300px;
+  height: 300px;
   border-radius: 50%;
-  filter: blur(120px);
+  filter: blur(80px);
   z-index: -1;
-  opacity: 0.4;
+  opacity: 0.3;
   pointer-events: none;
+}
+
+@media (min-width: 768px) {
+  .bg-orb {
+    width: 500px;
+    height: 500px;
+    filter: blur(120px);
+    opacity: 0.4;
+  }
 }
 
 .orb-1 {
   background: #6366f1;
-  top: -100px;
-  left: -100px;
+  top: -50px;
+  left: -50px;
   animation: float 20s infinite alternate ease-in-out;
 }
 
 .orb-2 {
   background: #10b981;
-  bottom: -100px;
-  right: -100px;
+  bottom: -50px;
+  right: -50px;
   animation: float 25s infinite alternate-reverse ease-in-out;
 }
 
