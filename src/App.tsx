@@ -53,12 +53,21 @@ export default function App() {
   const formatDate = (dateStr?: string) => {
     if (!dateStr || dateStr === 'undefined' || dateStr === 'null' || dateStr === '-') return '-';
     try {
-      // If it's a long string like "Fri May 15 2026...", handle it
+      // If the string contains a full date like "Fri May 15...", try to parse just the date part
       const date = new Date(dateStr);
       if (isNaN(date.getTime())) return dateStr;
       
-      // Return YYYY-MM-DD for consistency or a short localized format
-      return date.toISOString().split('T')[0];
+      // Use UTC to avoid timezone shifts when displaying simple dates
+      const year = date.getUTCFullYear();
+      const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(date.getUTCDate()).padStart(2, '0');
+      
+      // Check if it was an ISO string that came through
+      if (dateStr.includes('T')) {
+        return dateStr.split('T')[0];
+      }
+      
+      return `${year}-${month}-${day}`;
     } catch {
       return dateStr;
     }
@@ -98,16 +107,26 @@ export default function App() {
       const response = await fetch(url);
       const data = await response.json();
       if (Array.isArray(data)) {
-        // Sanitize data from Sheets (ensure numbers are numbers, etc.)
-        const sanitizedData = data.map((item: any) => ({
-          ...item,
-          id: item.id || crypto.randomUUID(),
-          buyAmount: item.buyAmount ? Number(item.buyAmount) : 0,
-          sellAmount: item.sellAmount ? Number(item.sellAmount) : 0,
-          buyDate: item.buyDate ? String(item.buyDate) : undefined,
-          sellDate: item.sellDate ? String(item.sellDate) : undefined,
-          type: item.type || (item.buyAmount && item.sellAmount ? 'pair' : item.buyAmount ? 'buy' : 'sell')
-        }));
+        // Defensive Mapping: Handle case-insensitive headers and common variations
+        const sanitizedData = data.map((item: any) => {
+          // Normalize keys to lowercase for matching
+          const normalizedItem: any = {};
+          Object.keys(item).forEach(k => normalizedItem[k.toLowerCase().replace(/\s+/g, '')] = item[k]);
+
+          const buyAmt = Number(normalizedItem.buyamount || normalizedItem.buyprice || 0);
+          const sellAmt = Number(normalizedItem.sellamount || normalizedItem.sellprice || 0);
+          const buyD = normalizedItem.buydate || undefined;
+          const sellD = normalizedItem.selldate || undefined;
+
+          return {
+            id: normalizedItem.id || crypto.randomUUID(),
+            type: normalizedItem.type || (buyAmt > 0 && sellAmt > 0 ? 'pair' : buyAmt > 0 ? 'buy' : 'sell'),
+            buyAmount: buyAmt,
+            sellAmount: sellAmt,
+            buyDate: buyD,
+            sellDate: sellD
+          };
+        });
         
         setTrades(sanitizedData);
         localStorage.setItem('marginal_trades', JSON.stringify(sanitizedData));
@@ -150,30 +169,35 @@ export default function App() {
     const errors: string[] = [];
     const buyPrice = Number(formData.buyAmount);
     const sellPrice = Number(formData.sellAmount);
-    const hasBuy = formData.buyDate || buyPrice;
-    const hasSell = formData.sellDate || sellPrice;
+    
+    // Check if the user has touched/started filling either side
+    const hasBuyInput = formData.buyDate.trim() !== '' || formData.buyAmount.trim() !== '';
+    const hasSellInput = formData.sellDate.trim() !== '' || formData.sellAmount.trim() !== '';
 
+    // Validation logic per mode
     if (formMode === 'pair') {
-      // In pair mode, we need at least one side.
-      // If they started filling one side, they must complete it.
-      if (!hasBuy && !hasSell) {
+      if (!hasBuyInput && !hasSellInput) {
         errors.push('buyDate', 'buyAmount', 'sellDate', 'sellAmount');
       } else {
-        if (hasBuy) {
+        if (hasBuyInput) {
           if (!formData.buyDate) errors.push('buyDate');
-          if (!buyPrice) errors.push('buyAmount');
+          if (buyPrice <= 0) errors.push('buyAmount');
         }
-        if (hasSell) {
+        if (hasSellInput) {
           if (!formData.sellDate) errors.push('sellDate');
-          if (!sellPrice) errors.push('sellAmount');
+          if (sellPrice <= 0) errors.push('sellAmount');
+        }
+        // Sequence check: Sell must be after or on Buy date
+        if (formData.buyDate && formData.sellDate && new Date(formData.sellDate) < new Date(formData.buyDate)) {
+          errors.push('sellDate');
         }
       }
     } else if (formMode === 'buy') {
       if (!formData.buyDate) errors.push('buyDate');
-      if (!buyPrice) errors.push('buyAmount');
+      if (buyPrice <= 0) errors.push('buyAmount');
     } else if (formMode === 'sell') {
       if (!formData.sellDate) errors.push('sellDate');
-      if (!sellPrice) errors.push('sellAmount');
+      if (sellPrice <= 0) errors.push('sellAmount');
     }
 
     if (errors.length > 0) {
@@ -183,12 +207,15 @@ export default function App() {
 
     setValidationErrors([]);
     
-    // Determine the actual type based on what was filled if in 'pair' mode
+    // Determine the actual type based on what was actually completed
     let effectiveType = formMode;
     if (formMode === 'pair') {
-      if (hasBuy && hasSell) effectiveType = 'pair';
-      else if (hasBuy) effectiveType = 'buy';
-      else if (hasSell) effectiveType = 'sell';
+      const isBuyComplete = formData.buyDate && buyPrice > 0;
+      const isSellComplete = formData.sellDate && sellPrice > 0;
+      
+      if (isBuyComplete && isSellComplete) effectiveType = 'pair';
+      else if (isBuyComplete) effectiveType = 'buy';
+      else if (isSellComplete) effectiveType = 'sell';
     }
 
     const tradeData: Partial<Trade> = {
@@ -557,26 +584,26 @@ export default function App() {
                                   trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'
                                 }`} />
                                 <div className="min-w-0">
-                                  {Number(trade.buyAmount) > 0 ? (
+                                  {trade.type !== 'sell' && trade.buyAmount ? (
                                     <>
                                       <p className="text-[12px] sm:text-sm font-semibold truncate">${Number(trade.buyAmount).toLocaleString()}</p>
                                       <p className="text-[8px] sm:text-[10px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>
                                     </>
                                   ) : (
-                                    <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-600 block">N/A (Sell)</span>
+                                    <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-600 block">NO BUY DATA</span>
                                   )}
                                 </div>
                               </div>
                             </td>
                             <td className="px-3 sm:px-6 py-3 sm:py-4">
                               <div className="min-w-0">
-                                {Number(trade.sellAmount) > 0 ? (
+                                {trade.type !== 'buy' && trade.sellAmount ? (
                                   <>
                                     <p className="text-[12px] sm:text-sm font-semibold truncate">${Number(trade.sellAmount).toLocaleString()}</p>
                                     <p className="text-[8px] sm:text-[10px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
                                   </>
                                 ) : (
-                                  <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-600 block">N/A (Buy)</span>
+                                  <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-600 block">OPEN POSITION</span>
                                 )}
                               </div>
                             </td>
