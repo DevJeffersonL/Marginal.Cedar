@@ -454,66 +454,65 @@ function doPost(e) {
               className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-8"
             >
               {/* Left Column */}
-              <div className="space-y-4 sm:space-y-6">
-                {/* Hero Card */}
-                <div className="glass-card p-8 sm:p-10 flex flex-col items-center justify-center text-center relative group overflow-hidden">
-                  
-                  <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                    <button 
-                      onClick={handleAiAnalysis}
-                      className="p-3 bg-[#111111] hover:bg-white/10 rounded-xl text-slate-400 hover:text-white transition-all flex items-center gap-2 border border-white/10 haptic-interaction"
-                    >
-                      <BrainCircuit size={18} className={isAiAnalyzing ? 'animate-spin' : ''} />
-                    </button>
-                  </div>
-
-                  <h2 className="text-[10px] font-medium uppercase tracking-[0.2em] text-slate-500 mb-6 flex items-center gap-3">
-                    Portfolio Valuation
-                  </h2>
-                  
-                  <div className="relative">
-                    <div className={`text-6xl sm:text-8xl font-sans font-light tabular-nums tracking-tight leading-none ${
+              <div className="space-y-4">
+                {/* Hero Card - Compact */}
+                <div className="glass-card p-6 flex items-center justify-between relative group overflow-hidden bg-[#0a0a0a]">
+                  <div className="flex flex-col">
+                    <h2 className="text-[10px] font-medium uppercase tracking-widest text-slate-500 mb-1">
+                      Portfolio Valuation
+                    </h2>
+                    <div className={`text-4xl font-sans font-light tabular-nums tracking-tight leading-none ${
                         totalNetProfit >= 0 ? 'text-white' : 'text-loss'
                     }`}>
-                      <span className="opacity-40 mr-2 text-4xl sm:text-6xl font-light">$</span>
+                      <span className="opacity-40 mr-1 text-2xl font-light">$</span>
                       {totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </div>
                   </div>
-                  
-                  <div className="mt-8 flex flex-wrap justify-center items-center gap-4">
-                    <div className="flex items-center gap-2 bg-[#111111] px-4 py-2 rounded-full border border-white/10">
+
+                  <div className="flex flex-col items-end gap-2">
+                    <div className="flex items-center gap-2 bg-[#111111] px-3 py-1.5 rounded-full border border-white/10">
                       <div className={`w-1.5 h-1.5 rounded-full ${totalNetProfit >= 0 ? 'bg-profit' : 'bg-loss animate-pulse'}`} />
-                      <span className="text-[10px] uppercase font-medium tracking-widest text-[#e5e5e5]">
-                        {totalNetProfit >= 0 ? 'Bullish Sentiment' : 'Bearish Weighted'}
+                      <span className="text-[9px] uppercase font-medium tracking-widest text-[#e5e5e5]">
+                        {totalNetProfit >= 0 ? 'Bullish' : 'Bearish'}
                       </span>
                     </div>
-                    <div className="text-[10px] uppercase font-medium tracking-widest text-slate-500">
-                      {trades.length} Verified Nodes
+                    <div className="text-[9px] uppercase font-medium tracking-widest text-slate-500">
+                      {trades.length} Records
                     </div>
+                  </div>
+                  
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={handleAiAnalysis}
+                      disabled={isAiAnalyzing}
+                      className="p-1.5 bg-[#111111] hover:bg-white/10 rounded-lg text-slate-400 hover:text-white transition-all border border-white/10 haptic-interaction"
+                    >
+                      <BrainCircuit size={14} className={isAiAnalyzing ? 'animate-spin' : ''} />
+                    </button>
                   </div>
                 </div>
                 
                 {aiAnalysis && (
                     <motion.div 
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="mt-6 p-6 bg-[#0a0a0a] rounded-xl text-left border border-white/10 relative group/insight"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-[#0a0a0a] rounded-xl border border-white/10 relative"
                     >
-                       <div className="absolute -top-2 left-6 px-2 py-0.5 bg-accent text-[9px] font-semibold text-white uppercase tracking-widest rounded-sm">
-                         Proprietary Insight
+                       <div className="absolute -top-2 left-4 px-2 py-0.5 bg-accent text-[8px] font-semibold text-white uppercase tracking-widest rounded-sm">
+                         Insight
                        </div>
-                       <p className="text-sm text-slate-300 leading-relaxed font-sans">
+                       <p className="text-xs text-slate-300 leading-relaxed italic">
                          "{aiAnalysis}"
                        </p>
                     </motion.div>
                   )}
                 </div>
 
-                {/* Form Card */}
-                <div className={`glass-card p-6 sm:p-8 transition-all duration-500 ${editingId ? 'ring-1 ring-[#0066FF] bg-[#111111]' : ''}`}>
-                  <div className="flex justify-between items-center mb-8">
-                    <h3 className="font-heading font-semibold text-lg flex items-center gap-2">
-                       {editingId ? <Pencil className="text-accent" size={18} /> : <Plus className="text-accent" size={18} />}
+                {/* Form Card - Compact */}
+                <div className={`glass-card p-5 transition-all duration-500 ${editingId ? 'ring-1 ring-[#0066FF] bg-[#111111]' : 'bg-[#0a0a0a]'}`}>
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="font-heading font-semibold text-sm flex items-center gap-2">
+                       {editingId ? <Pencil className="text-accent" size={14} /> : <Plus className="text-accent" size={14} />}
                        {editingId ? 'Edit Transaction' : 'New Transaction'}
                     </h3>
                     
@@ -625,32 +624,32 @@ function doPost(e) {
                 </div>
 
               {/* Right Column - Ledger */}
-              <div className="glass-card min-h-[400px] flex flex-col overflow-hidden bg-[#111111]">
-                <div className="p-5 sm:p-6 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                   <h3 className="font-heading font-semibold text-lg flex items-center gap-2">
-                    <Table className="text-accent" size={18} />
-                    Transaction Ledger
+              <div className="glass-card min-h-[400px] flex flex-col overflow-hidden bg-[#000000]">
+                <div className="p-4 sm:p-5 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-[#0a0a0a]">
+                   <h3 className="font-heading font-semibold text-base flex items-center gap-2 uppercase tracking-widest">
+                    <Table className="text-accent" size={16} />
+                    Transactions
                   </h3>
-                  <span className="text-[10px] font-mono text-slate-500 uppercase tracking-widest">{trades.length} Records</span>
+                  <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{trades.length} Records</span>
                 </div>
                 
-                <div className="flex-1 p-4 sm:p-6">
+                <div className="flex-1 p-3 sm:p-4">
                   {/* Desktop Table View */}
-                  <div className="hidden sm:block overflow-x-auto">
-                    <table className="w-full text-left border-separate border-spacing-y-3">
+                  <div className="hidden sm:block overflow-x-auto scroll-hide">
+                    <table className="w-full text-left border-separate border-spacing-y-2">
                       <thead>
                         <tr>
-                          <th className="px-6 pb-3 text-[10px] uppercase tracking-wider font-semibold text-slate-500">Buy Side</th>
-                          <th className="px-6 pb-3 text-[10px] uppercase tracking-wider font-semibold text-slate-500">Sell Side</th>
-                          <th className="px-6 pb-3 text-[10px] uppercase tracking-wider font-semibold text-slate-500">Profit</th>
-                          <th className="px-6 pb-3 text-right text-[10px] uppercase tracking-wider font-semibold text-slate-500 pr-8">Actions</th>
+                          <th className="px-4 pb-2 text-[9px] uppercase tracking-wider font-semibold text-slate-600">Entry</th>
+                          <th className="px-4 pb-2 text-[9px] uppercase tracking-wider font-semibold text-slate-600">Exit</th>
+                          <th className="px-4 pb-2 text-[9px] uppercase tracking-wider font-semibold text-slate-600">Net Return</th>
+                          <th className="px-4 pb-2 text-right text-[9px] uppercase tracking-wider font-semibold text-slate-600">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {trades.length === 0 && (
                           <tr>
-                            <td colSpan={4} className="px-6 py-24 text-center text-slate-500 font-light italic">
-                              No transactions recorded yet.
+                            <td colSpan={4} className="px-4 py-20 text-center text-slate-500 font-light italic">
+                              No records found.
                             </td>
                           </tr>
                         )}
@@ -666,55 +665,40 @@ function doPost(e) {
                               animate={{ opacity: 1 }}
                               className="hover:bg-white/5 transition-colors group bg-[#0a0a0a]"
                             >
-                              <td className="px-6 py-4 rounded-l-xl">
-                                <div className="flex items-center gap-3">
+                              <td className="px-4 py-3 rounded-l-lg border-y border-l border-white/5 group-hover:border-white/10 transition-colors">
+                                <div className="flex items-center gap-2">
                                   <div className="min-w-0">
                                     {isBuyAvailable ? (
                                       <>
                                         <p className="text-sm font-medium text-white">${Number(trade.buyAmount).toLocaleString()}</p>
-                                        <p className="text-xs font-mono text-slate-500 tracking-tight">{formatDate(trade.buyDate)}</p>
+                                        <p className="text-[10px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>
                                       </>
-                                    ) : (
-                                      <div className="flex flex-col opacity-40">
-                                        <span className="text-xs font-mono text-slate-400 tracking-tighter">NO_BUY</span>
-                                      </div>
-                                    )}
+                                    ) : <span className="text-xs text-slate-600">—</span>}
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-6 py-4">
+                              <td className="px-4 py-3 border-y border-white/5 group-hover:border-white/10 transition-colors">
                                 <div className="min-w-0">
                                   {isSellAvailable ? (
                                     <>
                                       <p className="text-sm font-medium text-white">${Number(trade.sellAmount).toLocaleString()}</p>
-                                      <p className="text-xs font-mono text-slate-500 tracking-tight">{formatDate(trade.sellDate)}</p>
+                                      <p className="text-[10px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
                                     </>
-                                  ) : (
-                                    <div className="flex flex-col opacity-40">
-                                      <span className="text-xs font-mono text-slate-400 tracking-tight">OPEN</span>
-                                    </div>
-                                  )}
+                                  ) : <span className="text-xs text-accent/50 italic">Open</span>}
                                 </div>
                               </td>
-                              <td className="px-6 py-4">
-                                <div className="flex flex-col gap-1">
-                                  <span className={`text-[8px] self-start px-2 py-0.5 rounded-sm font-semibold uppercase tracking-widest ${
-                                    trade.type === 'pair' ? 'bg-[#0066FF]/10 text-[#0066FF]' : trade.type === 'buy' ? 'bg-profit/10 text-profit' : 'bg-loss/10 text-loss'
-                                  }`}>
-                                    {trade.type}
-                                  </span>
-                                  <p className={`font-mono text-sm font-medium ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                    {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                  </p>
-                                </div>
+                              <td className="px-4 py-3 border-y border-white/5 group-hover:border-white/10 transition-colors">
+                                <p className={`font-mono text-sm font-medium ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                  {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </p>
                               </td>
-                              <td className="px-6 py-4 text-right rounded-r-xl pr-6">
-                                <div className="flex items-center justify-end gap-2">
-                                  <button onClick={() => handleEditTrade(trade)} className="p-2 text-slate-600 hover:text-accent transition-colors hover:bg-accent/10 rounded-lg">
-                                    <Pencil size={14} />
+                              <td className="px-4 py-3 rounded-r-lg border-y border-r border-white/5 group-hover:border-white/10 text-right transition-colors pr-4">
+                                <div className="flex items-center justify-end gap-1">
+                                  <button onClick={() => handleEditTrade(trade)} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-500 hover:text-white transition-all">
+                                    <Pencil size={12} />
                                   </button>
-                                  <button onClick={() => handleDeleteTrade(trade.id)} className="p-2 text-slate-600 hover:text-loss transition-colors hover:bg-loss/10 rounded-lg">
-                                    <Trash2 size={14} />
+                                  <button onClick={() => handleDeleteTrade(trade.id)} className="p-1.5 hover:bg-loss/20 rounded-lg text-slate-500 hover:text-loss transition-all">
+                                    <Trash2 size={12} />
                                   </button>
                                 </div>
                               </td>
@@ -725,8 +709,8 @@ function doPost(e) {
                     </table>
                   </div>
 
-                  {/* Mobile Mobile/List View */}
-                    <div className="sm:hidden space-y-4">
+                  {/* Mobile/List View - Extremely Compact */}
+                    <div className="sm:hidden space-y-2">
                       {trades.length === 0 && (
                         <p className="py-20 text-center text-slate-500 font-light italic">No records found.</p>
                       )}
@@ -739,50 +723,40 @@ function doPost(e) {
                           <motion.div 
                             key={trade.id}
                             layout
-                            className="bg-[#0a0a0a] p-5 rounded-xl border border-white/10 relative overflow-hidden"
+                            className="bg-[#0a0a0a] p-3 rounded-xl border border-white/10 relative overflow-hidden"
                           >
-                            <div className={`absolute top-0 left-0 w-1 h-full ${trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'}`} />
+                            <div className={`absolute top-0 left-0 w-0.5 h-full ${trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'}`} />
                             
-                            <div className="flex justify-between items-center mb-5 pl-3">
-                              <div className="flex items-center gap-2">
-                                <span className={`text-[9px] px-2 py-0.5 rounded-sm font-semibold uppercase tracking-widest ${
+                            <div className="flex justify-between items-center mb-2 pl-2">
+                                <span className={`text-[7px] px-1 py-0.5 rounded-sm font-semibold uppercase tracking-widest ${
                                   trade.type === 'pair' ? 'bg-accent/10 text-accent' : trade.type === 'buy' ? 'bg-profit/10 text-profit' : 'bg-loss/10 text-loss'
                                 }`}>
-                                  {trade.type} Position
+                                  {trade.type}
                                 </span>
-                              </div>
-                              <div className="flex gap-1.5">
-                                <button onClick={() => handleEditTrade(trade)} className="p-2 hover:bg-white/10 rounded-xl text-slate-400 haptic-interaction"><Pencil size={14} /></button>
-                                <button onClick={() => handleDeleteTrade(trade.id)} className="p-2 hover:bg-loss/20 rounded-xl text-slate-400 hover:text-loss haptic-interaction"><Trash2 size={14} /></button>
-                              </div>
+                                <div className="flex gap-1">
+                                  <button onClick={() => handleEditTrade(trade)} className="p-1 hover:bg-white/10 rounded text-slate-500"><Pencil size={12} /></button>
+                                  <button onClick={() => handleDeleteTrade(trade.id)} className="p-1 hover:bg-loss/20 rounded text-slate-500 hover:text-loss"><Trash2 size={12} /></button>
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4 mb-5 pl-3">
-                              <div>
-                                <p className="text-[9px] uppercase font-semibold text-slate-500 tracking-widest mb-1.5">Entry Side</p>
-                                {isBuyAvailable ? (
-                                  <div>
-                                    <p className="text-lg font-sans font-medium text-white">${Number(trade.buyAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-                                    <p className="text-[10px] font-mono text-slate-500 font-medium">{formatDate(trade.buyDate)}</p>
-                                  </div>
-                                ) : <p className="text-xs font-medium text-slate-600">None</p>}
+                            <div className="flex justify-between items-end pl-2">
+                              <div className="flex gap-4">
+                                <div>
+                                  <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">In</p>
+                                  <p className="text-sm font-medium text-white">${Number(isBuyAvailable ? trade.buyAmount : 0).toLocaleString()}</p>
+                                </div>
+                                <div>
+                                  <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">Out</p>
+                                  {isSellAvailable ? (
+                                    <p className="text-sm font-medium text-white">${Number(trade.sellAmount).toLocaleString()}</p>
+                                  ) : <p className="text-xs font-medium text-accent italic">Open</p>}
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-[9px] uppercase font-semibold text-slate-500 tracking-widest mb-1.5">Exit Side</p>
-                                {isSellAvailable ? (
-                                  <div>
-                                    <p className="text-lg font-sans font-medium text-white">${Number(trade.sellAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-                                    <p className="text-[10px] font-mono text-slate-500 font-medium">{formatDate(trade.sellDate)}</p>
-                                  </div>
-                                ) : <p className="text-xs font-medium text-accent italic">Open</p>}
+                              <div className="text-right">
+                                <p className={`font-mono text-sm font-semibold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                  {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString()}
+                                </p>
                               </div>
-                            </div>
-
-                            <div className={`p-4 rounded-xl flex justify-between items-center ${profit >= 0 ? 'bg-profit/10' : 'bg-loss/10'} ml-3`}>
-                              <span className="text-[9px] font-semibold uppercase text-slate-300 tracking-widest">Net Return</span>
-                              <span className={`font-mono text-base font-medium ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                {profit >= 0 ? '+' : '-'}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                              </span>
                             </div>
                           </motion.div>
                         );
