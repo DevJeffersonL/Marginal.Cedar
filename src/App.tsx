@@ -634,16 +634,16 @@ function doPost(e) {
                     </h3>
                     <div className="flex bg-black p-0.5 rounded-lg border border-white/5">
                       <button 
-                        onClick={() => setIsGroupedByDate(false)}
-                        className={`px-3 py-1 rounded-md text-[8px] uppercase font-bold tracking-widest transition-all ${!isGroupedByDate ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
-                      >
-                        Raw
-                      </button>
-                      <button 
                         onClick={() => setIsGroupedByDate(true)}
                         className={`px-3 py-1 rounded-md text-[8px] uppercase font-bold tracking-widest transition-all ${isGroupedByDate ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                       >
                         Daily
+                      </button>
+                      <button 
+                        onClick={() => setIsGroupedByDate(false)}
+                        className={`px-3 py-1 rounded-md text-[8px] uppercase font-bold tracking-widest transition-all ${!isGroupedByDate ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                      >
+                        Raw
                       </button>
                     </div>
                   </div>
