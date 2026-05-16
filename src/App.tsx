@@ -444,7 +444,7 @@ function doPost(e) {
         )}
       </AnimatePresence>
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-8 md:p-12">
+      <main className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
         <AnimatePresence mode="wait">
           {activeView === 'dashboard' ? (
             <motion.div 
@@ -452,12 +452,12 @@ function doPost(e) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-8"
+              className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-6"
             >
               {/* Left Column */}
               <div className="space-y-4">
                 {/* Hero Card - Compact */}
-                <div className="glass-card p-6 flex items-center justify-between relative group overflow-hidden bg-[#0a0a0a]">
+                <div className="glass-card p-5 flex items-center justify-between relative group overflow-hidden bg-[#0a0a0a]">
                   <div className="flex flex-col">
                     <h2 className="text-[10px] font-medium uppercase tracking-widest text-slate-500 mb-1">
                       Portfolio Valuation
@@ -510,7 +510,7 @@ function doPost(e) {
 
                 {/* Form Card - Compact */}
                 <div className={`glass-card p-5 transition-all duration-500 ${editingId ? 'ring-1 ring-[#0066FF] bg-[#111111]' : 'bg-[#0a0a0a]'}`}>
-                  <div className="flex justify-between items-center mb-6">
+                  <div className="flex justify-between items-center mb-4">
                     <h3 className="font-heading font-semibold text-sm flex items-center gap-2">
                        {editingId ? <Pencil className="text-accent" size={14} /> : <Plus className="text-accent" size={14} />}
                        {editingId ? 'Edit Transaction' : 'New Transaction'}
@@ -526,10 +526,10 @@ function doPost(e) {
                     )}
                   </div>
 
-                  <form onSubmit={handleAddTrade} className="space-y-6" noValidate>
-                    <div className="space-y-8">
+                  <form onSubmit={handleAddTrade} className="space-y-4" noValidate>
+                    <div className="space-y-4">
                       {/* Buy Section */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="relative group/field">
                           <input 
                             type="date" 
@@ -538,7 +538,7 @@ function doPost(e) {
                               setFormData({...formData, buyDate: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'buyDate'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-2 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight ${
+                            className={`peer w-full bg-black border rounded-xl px-4 py-1.5 pt-5 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight ${
                               validationErrors.includes('buyDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
                             }`}
                           />
@@ -558,7 +558,7 @@ function doPost(e) {
                               setFormData({...formData, buyAmount: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'buyAmount'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-2 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
+                            className={`peer w-full bg-black border rounded-xl px-4 py-1.5 pt-5 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
                               validationErrors.includes('buyAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
                             }`}
                           />
@@ -571,7 +571,7 @@ function doPost(e) {
                       </div>
 
                       {/* Sell Section */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="relative group/field">
                           <input 
                             type="date" 
@@ -580,7 +580,7 @@ function doPost(e) {
                               setFormData({...formData, sellDate: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'sellDate'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-2 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight ${
+                            className={`peer w-full bg-black border rounded-xl px-4 py-1.5 pt-5 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight ${
                               validationErrors.includes('sellDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
                             }`}
                           />
@@ -600,7 +600,7 @@ function doPost(e) {
                               setFormData({...formData, sellAmount: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'sellAmount'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-2 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
+                            className={`peer w-full bg-black border rounded-xl px-4 py-1.5 pt-5 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
                               validationErrors.includes('sellAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
                             }`}
                           />
