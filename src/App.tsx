@@ -744,15 +744,19 @@ function doPost(e) {
                                 <div>
                                   <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">In</p>
                                   <p className="text-sm font-medium text-white">${Number(isBuyAvailable ? trade.buyAmount : 0).toLocaleString()}</p>
+                                  {isBuyAvailable && <p className="text-[8px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>}
                                 </div>
                                 <div>
                                   <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">Out</p>
                                   {isSellAvailable ? (
-                                    <p className="text-sm font-medium text-white">${Number(trade.sellAmount).toLocaleString()}</p>
-                                  ) : <p className="text-xs font-medium text-accent italic">Open</p>}
+                                    <>
+                                      <p className="text-sm font-medium text-white">${Number(trade.sellAmount).toLocaleString()}</p>
+                                      <p className="text-[8px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
+                                    </>
+                                  ) : <p className="text-xs font-medium text-accent italic py-1">Open</p>}
                                 </div>
                               </div>
-                              <div className="text-right">
+                              <div className="text-right pb-1">
                                 <p className={`font-mono text-sm font-semibold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
                                   {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString()}
                                 </p>
