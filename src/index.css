@@ -1,46 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Outfit", sans-serif;
+  --font-heading: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
   
-  --color-background: #020617;
-  --color-surface: #0f172a;
-  --color-accent: #6366f1;
-  --color-profit: #10b981;
-  --color-loss: #f43f5e;
+  --color-background: #000000;
+  --color-surface: #0a0a0a;
+  --color-accent: #0066FF;
+  --color-profit: #00E676;
+  --color-loss: #FF3B30;
 }
 
 @layer base {
   body {
-    @apply bg-[#020617] text-slate-200 font-sans antialiased selection:bg-accent/30;
+    @apply bg-black text-[#e5e5e5] font-sans antialiased selection:bg-[#0066FF]/30;
     margin: 0;
     min-height: 100vh;
-    letter-spacing: -0.01em;
   }
 }
 
 @layer utilities {
   .glass {
-    @apply bg-white/[0.02] backdrop-blur-[24px] border border-white/[0.05] border-t-white/[0.1] shadow-2xl;
+    @apply bg-black border border-white/15;
   }
   
   .glass-card {
-    @apply bg-slate-900/40 backdrop-blur-[32px] border border-white/[0.04] border-t-white/[0.1] rounded-[2rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)];
+    @apply bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden;
   }
 
   .gradient-text-profit {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-emerald-300 via-emerald-400 to-emerald-600 drop-shadow-[0_0_15px_rgba(16,185,129,0.4)];
+    @apply text-profit;
   }
 
   .btn-glow {
-    @apply relative overflow-hidden transition-all duration-500 hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] active:scale-95;
+    @apply transition-colors duration-200 hover:bg-white/10 active:scale-95;
   }
   
   .haptic-interaction {
-    @apply transition-transform duration-200 active:scale-90 touch-none;
+    @apply transition-transform duration-200 active:scale-[0.98] touch-none;
   }
 
   .scroll-hide::-webkit-scrollbar {
@@ -48,68 +47,21 @@
   }
 }
 
-/* Premium Surface for Hero */
 .surface-hero {
-  background: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-              radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
-}
-
-/* Ambient Background Orbs */
-.bg-orb {
-  position: fixed;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  filter: blur(80px);
-  z-index: -1;
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-@media (min-width: 768px) {
-  .bg-orb {
-    width: 500px;
-    height: 500px;
-    filter: blur(120px);
-    opacity: 0.4;
-  }
-}
-
-.orb-1 {
-  background: #6366f1;
-  top: -50px;
-  left: -50px;
-  animation: float 20s infinite alternate ease-in-out;
-}
-
-.orb-2 {
-  background: #10b981;
-  bottom: -50px;
-  right: -50px;
-  animation: float 25s infinite alternate-reverse ease-in-out;
-}
-
-@keyframes float {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(10%, 15%) scale(1.1); }
-  100% { transform: translate(-10%, 5%) scale(0.9); }
+  background: #050505;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
 
-.scroll-hide::-webkit-scrollbar {
-  display: none;
-}
