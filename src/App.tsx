@@ -336,16 +336,18 @@ function doPost(e) {
   const NavTab = ({ id, label, icon: Icon }: { id: View, label: string, icon: any }) => (
     <button
       onClick={() => setActiveView(id)}
-      className={`flex flex-col items-center gap-1 px-6 py-2 transition-all duration-300 relative ${
-        activeView === id ? 'text-accent' : 'text-slate-500 hover:text-slate-300'
+      className={`flex flex-col items-center gap-1.5 px-8 pt-3 pb-2 transition-all duration-300 relative haptic-interaction ${
+        activeView === id ? 'text-white' : 'text-slate-500'
       }`}
     >
-      <Icon size={20} />
-      <span className="text-[10px] font-medium uppercase tracking-widest">{label}</span>
+      <div className={`p-2 rounded-xl transition-all duration-300 ${activeView === id ? 'bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]' : 'bg-transparent'}`}>
+        <Icon size={22} strokeWidth={activeView === id ? 2.5 : 2} />
+      </div>
+      <span className={`text-[9px] font-black uppercase tracking-[0.2em] transition-all ${activeView === id ? 'opacity-100' : 'opacity-40'}`}>{label}</span>
       {activeView === id && (
         <motion.div
-           layoutId="nav-pill"
-           className="absolute -top-1 w-1 h-1 bg-accent rounded-full shadow-[0_0_8px_#6366f1]"
+           layoutId="nav-dot"
+           className="absolute -bottom-1 w-1 h-1 bg-accent rounded-full shadow-[0_0_8px_#6366f1]"
         />
       )}
     </button>
@@ -358,46 +360,29 @@ function doPost(e) {
       <div className="bg-orb orb-2" />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-white/5 py-3 md:py-4 px-4 sm:px-6 md:px-12 flex flex-col sm:flex-row justify-between items-center gap-4 transition-all duration-500">
-        <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-accent flex items-center justify-center shadow-lg shadow-accent/20 shrink-0">
-            <TrendingUp className="text-white" size={18} />
+      <header className="sticky top-0 z-50 glass border-b border-white/5 py-4 px-4 sm:px-12 flex items-center justify-between transition-all duration-500">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-accent flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.3)] shrink-0 haptic-interaction">
+            <TrendingUp className="text-white" size={20} />
           </div>
-          <div>
-            <h1 className="font-heading font-bold text-lg sm:text-xl tracking-tight leading-none">MARGINAL</h1>
-            <p className="text-[9px] sm:text-[10px] font-mono text-slate-500 mt-0.5 sm:mt-1 uppercase tracking-widest">Trade Intelligence</p>
+          <div className="hidden xs:block">
+            <h1 className="font-heading font-black text-xl tracking-tighter leading-none text-white uppercase">Marginal</h1>
+            <p className="text-[9px] font-mono text-slate-500 mt-1 font-bold uppercase tracking-[0.2em]">Alpha Engine v2</p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto border-t border-white/5 sm:border-0 pt-3 sm:pt-0">
-          <div className="flex flex-col items-start sm:items-end">
-            <div className="flex items-center gap-1.5 glass-card px-2 sm:px-3 py-1 sm:py-1.5 border-white/5">
-              <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full shrink-0 ${isSyncing ? 'bg-amber-400 animate-pulse shadow-[0_0_8px_#fbbf24]' : gsUrl ? 'bg-profit shadow-[0_0_8px_#10b981]' : 'bg-slate-600'}`} />
-              <span className="text-[8px] sm:text-[10px] uppercase font-semibold text-slate-400 tracking-wider whitespace-nowrap">
-                {isSyncing ? 'Syncing' : gsUrl ? 'Cloud' : 'Local'}
-              </span>
-              {gsUrl && (
-                <button 
-                  onClick={() => fetchRemoteTrades(gsUrl)}
-                  disabled={isSyncing}
-                  className="p-0.5 sm:p-1 hover:bg-white/10 rounded transition-colors text-slate-500 hover:text-white disabled:opacity-50"
-                  title="Manual Refresh"
-                >
-                  <RefreshCw size={10} className={isSyncing ? 'animate-spin' : ''} />
-                </button>
-              )}
-            </div>
-            {lastSynced && (
-              <span className="text-[7px] sm:text-[8px] text-slate-500 uppercase tracking-tighter mt-1">Sync: {lastSynced}</span>
-            )}
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col items-end">
+             <div className="flex items-center gap-2 bg-white/[0.03] px-3 py-1.5 rounded-full border border-white/5">
+                <div className={`w-2 h-2 rounded-full shrink-0 ${isSyncing ? 'bg-amber-400 animate-pulse' : gsUrl ? 'bg-profit shadow-[0_0_10px_#10b981]' : 'bg-slate-600'}`} />
+                <span className="text-[10px] uppercase font-black text-white/40 tracking-widest hidden sm:inline">
+                  {isSyncing ? 'Syncing...' : gsUrl ? 'Cloud' : 'Local'}
+                </span>
+             </div>
           </div>
           
           <div className="flex items-center gap-1">
-            <button 
-              onClick={() => setShowMacroCode(true)}
-              className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-400 hover:text-white"
-              title="Get Sync Macro"
-            >
+            <button onClick={() => setShowMacroCode(true)} className="p-2.5 hover:bg-white/5 rounded-2xl transition-colors text-slate-500 active:text-white haptic-interaction">
               <TableIcon size={18} />
             </button>
             <button 
@@ -409,8 +394,7 @@ function doPost(e) {
                   if (url) fetchRemoteTrades(url);
                 }
               }}
-              className="p-2 hover:bg-white/5 rounded-full transition-colors text-slate-400 hover:text-white"
-              title="Settings"
+              className="p-2.5 bg-accent/10 border border-accent/20 rounded-2xl transition-colors text-accent haptic-interaction"
             >
               <Settings2 size={18} />
             </button>
@@ -476,54 +460,47 @@ function doPost(e) {
               {/* Left Column */}
               <div className="space-y-6 sm:space-y-8">
                 {/* Hero Card */}
-                <div className="glass-card p-6 sm:p-10 flex flex-col items-center justify-center text-center relative group min-h-40 sm:min-h-48 overflow-hidden bg-gradient-to-br from-white/[0.03] to-transparent">
-                  {/* Subtle Background Mark */}
-                  <div className="absolute -bottom-10 -right-10 opacity-5 pointer-events-none rotate-12">
-                    <TrendingUp size={200} />
-                  </div>
+                <div className="glass-card surface-hero p-8 sm:p-12 flex flex-col items-center justify-center text-center relative group overflow-hidden">
+                  <div className="absolute top-2 w-16 h-1.5 bg-white/5 rounded-full blur-xs" />
                   
-                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <button 
                       onClick={handleAiAnalysis}
-                      disabled={isAiAnalyzing}
-                      className="p-2 bg-white/5 hover:bg-accent rounded-lg text-slate-400 hover:text-white transition-all flex items-center gap-2 group/ai btn-glow border border-white/5"
+                      className="p-3 bg-white/5 hover:bg-accent rounded-2xl text-slate-400 hover:text-white transition-all flex items-center gap-2 group/ai border border-white/5 haptic-interaction"
                     >
-                      <BrainCircuit size={16} className={isAiAnalyzing ? 'animate-spin' : ''} />
-                      <span className="text-[10px] uppercase font-bold tracking-widest">Consult AI</span>
+                      <BrainCircuit size={18} className={isAiAnalyzing ? 'animate-spin' : ''} />
                     </button>
                   </div>
 
-                  <p className="text-[9px] sm:text-[10px] uppercase font-mono tracking-[0.4em] text-slate-500 mb-4 flex items-center gap-2">
-                    <span className="w-8 h-[1px] bg-white/10"></span>
-                    Aggregated Net Performance
-                    <span className="w-8 h-[1px] bg-white/10"></span>
-                  </p>
+                  <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mb-8 flex items-center gap-3">
+                    <span className="w-6 h-[1px] bg-white/10" />
+                    Portfolio Valuation
+                    <span className="w-6 h-[1px] bg-white/10" />
+                  </h2>
                   
                   <div className="relative">
-                    <h2 className={`text-4xl sm:text-7xl font-heading font-black tabular-nums transition-all duration-700 tracking-tighter ${
-                      totalNetProfit >= 0 ? 'gradient-text-profit' : 'text-loss drop-shadow-[0_0_20px_rgba(239,68,68,0.2)]'
+                    <div className={`text-6xl sm:text-9xl font-heading font-black tabular-nums tracking-[-0.06em] leading-none ${
+                      totalNetProfit >= 0 ? 'gradient-text-profit' : 'text-loss drop-shadow-[0_0_40px_rgba(244,63,94,0.3)]'
                     }`}>
-                      ${totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </h2>
-                    {totalNetProfit !== 0 && (
-                      <div className={`absolute -top-4 -right-12 text-[10px] font-mono font-bold px-2 py-0.5 rounded border border-current/20 ${
-                        totalNetProfit > 0 ? 'text-profit bg-profit/5' : 'text-loss bg-loss/5'
-                      }`}>
-                        {totalNetProfit > 0 ? 'P&L POSITIVE' : 'P&L NEGATIVE'}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="mt-6 flex items-center gap-4 text-[10px] font-mono text-slate-500 uppercase tracking-widest">
-                    <div className="flex items-center gap-1.5">
-                      <div className={`w-1.5 h-1.5 rounded-full ${totalNetProfit >= 0 ? 'bg-profit shadow-[0_0_8px_#10b981]' : 'bg-loss animate-pulse'}`} />
-                      <span>{totalNetProfit >= 0 ? 'Market Bullish' : 'Market Bearish'}</span>
+                      <span className="opacity-20 mr-1">$</span>
+                      {totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </div>
-                    <span className="text-white/10">|</span>
-                    <span>{trades.length} Verified Records</span>
                   </div>
                   
-                  {aiAnalysis && (
+                  <div className="mt-8 flex flex-wrap justify-center items-center gap-4">
+                    <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-2xl border border-white/5">
+                      <div className={`w-2 h-2 rounded-full ${totalNetProfit >= 0 ? 'bg-profit shadow-[0_0_12px_#10b981]' : 'bg-loss animate-pulse'}`} />
+                      <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        {totalNetProfit >= 0 ? 'Bullish Sentiment' : 'Bearish Weighted'}
+                      </span>
+                    </div>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-slate-600">
+                      {trades.length} Verified Nodes
+                    </div>
+                  </div>
+                </div>
+                
+                {aiAnalysis && (
                     <motion.div 
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -558,9 +535,9 @@ function doPost(e) {
                   </div>
 
                   <form onSubmit={handleAddTrade} className="space-y-6" noValidate>
-                    <div className="space-y-4 sm:space-y-6">
+                    <div className="space-y-6 sm:space-y-8">
                       {/* Buy Section */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="relative group/field">
                           <input 
                             type="date" 
@@ -569,14 +546,14 @@ function doPost(e) {
                               setFormData({...formData, buyDate: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'buyDate'));
                             }}
-                            className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono ${
-                              validationErrors.includes('buyDate') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                            className={`peer w-full bg-slate-800/20 border rounded-2xl px-5 py-4 pt-8 text-sm focus:outline-hidden focus:ring-2 transition-all font-mono tracking-tight ${
+                              validationErrors.includes('buyDate') ? 'border-loss/50 focus:border-loss ring-loss/10' : 'border-white/5 focus:border-accent focus:ring-accent/10'
                             }`}
                           />
-                          <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all ${
+                          <label className={`absolute left-5 top-2 text-[10px] uppercase font-black tracking-widest transition-all ${
                             validationErrors.includes('buyDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Buy Date
+                            Entry Timestamp
                           </label>
                         </div>
                         <div className="relative group/field">
@@ -589,20 +566,20 @@ function doPost(e) {
                               setFormData({...formData, buyAmount: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'buyAmount'));
                             }}
-                            className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
-                              validationErrors.includes('buyAmount') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                            className={`peer w-full bg-slate-800/20 border rounded-2xl px-5 py-4 pt-8 text-sm focus:outline-hidden focus:ring-2 transition-all font-mono placeholder:opacity-0 ${
+                              validationErrors.includes('buyAmount') ? 'border-loss/50 focus:border-loss ring-loss/10' : 'border-white/5 focus:border-accent focus:ring-accent/10'
                             }`}
                           />
-                          <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-1 peer-focus:text-[9px] ${
+                          <label className={`absolute left-5 top-2 text-[10px] uppercase font-black tracking-widest transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-[10px] ${
                             validationErrors.includes('buyAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Buy Price ($)
+                            Capital Allocation
                           </label>
                         </div>
                       </div>
 
                       {/* Sell Section */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <div className="relative group/field">
                           <input 
                             type="date" 
@@ -611,14 +588,14 @@ function doPost(e) {
                               setFormData({...formData, sellDate: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'sellDate'));
                             }}
-                            className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono ${
-                              validationErrors.includes('sellDate') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                            className={`peer w-full bg-slate-800/20 border rounded-2xl px-5 py-4 pt-8 text-sm focus:outline-hidden focus:ring-2 transition-all font-mono tracking-tight ${
+                              validationErrors.includes('sellDate') ? 'border-loss/50 focus:border-loss ring-loss/10' : 'border-white/5 focus:border-accent focus:ring-accent/10'
                             }`}
                           />
-                          <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all ${
+                          <label className={`absolute left-5 top-2 text-[10px] uppercase font-black tracking-widest transition-all ${
                             validationErrors.includes('sellDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Sell Date
+                            Exit Timestamp
                           </label>
                         </div>
                         <div className="relative group/field">
@@ -631,29 +608,28 @@ function doPost(e) {
                               setFormData({...formData, sellAmount: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'sellAmount'));
                             }}
-                            className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
-                              validationErrors.includes('sellAmount') ? 'border-loss/50 focus:border-loss ring-loss/20' : 'border-white/10 focus:border-accent/50 focus:ring-accent/50'
+                            className={`peer w-full bg-slate-800/20 border rounded-2xl px-5 py-4 pt-8 text-sm focus:outline-hidden focus:ring-2 transition-all font-mono placeholder:opacity-0 ${
+                              validationErrors.includes('sellAmount') ? 'border-loss/50 focus:border-loss ring-loss/10' : 'border-white/5 focus:border-accent focus:ring-accent/10'
                             }`}
                           />
-                          <label className={`absolute left-4 top-1 text-[9px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-1 peer-focus:text-[9px] ${
+                          <label className={`absolute left-5 top-2 text-[10px] uppercase font-black tracking-widest transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-[10px] ${
                             validationErrors.includes('sellAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Sell Price ($)
+                            Liquidation Value
                           </label>
                         </div>
                       </div>
                     </div>
-                    
+
                     <button 
                       type="submit"
-                      className="w-full bg-accent hover:bg-accent/80 text-white font-bold py-4 rounded-xl shadow-lg shadow-accent/20 transition-all active:scale-[0.98] mt-4 flex items-center justify-center gap-2 uppercase tracking-widest text-xs group btn-glow"
+                      className="w-full bg-accent hover:bg-slate-100 text-white hover:text-accent font-black py-5 rounded-[2rem] shadow-[0_20px_40px_rgba(99,102,241,0.2)] transition-all active:scale-[0.95] mt-6 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-[10px] group haptic-interaction"
                     >
-                      {editingId ? <RefreshCw size={18} className="group-hover:rotate-180 transition-transform" /> : <PlusCircle size={18} className="group-hover:rotate-90 transition-transform" />}
-                      {editingId ? 'Update Transaction' : `Add ${formMode === 'pair' ? 'Deal' : formMode === 'buy' ? 'Buy Entry' : 'Sell Entry'}`}
+                      {editingId ? <RefreshCw size={20} className="group-hover:rotate-180 transition-transform" /> : <Plus size={20} className="group-hover:rotate-90 transition-transform" strokeWidth={3} />}
+                      {editingId ? 'Push Updates' : `${formMode === 'pair' ? 'Initialize Trade' : formMode === 'buy' ? 'Record Entry' : 'Record Exit'}`}
                     </button>
                   </form>
                 </div>
-              </div>
 
               {/* Right Column - Ledger */}
               <div className="glass-card min-h-[400px] flex flex-col overflow-hidden">
@@ -762,64 +738,68 @@ function doPost(e) {
                   </div>
 
                   {/* Mobile Mobile/List View */}
-                  <div className="sm:hidden space-y-4">
-                    {trades.length === 0 && (
-                      <p className="py-20 text-center text-slate-500 font-light italic">No records.</p>
-                    )}
-                    {trades.map((trade) => {
-                      const profit = (trade.sellAmount || 0) - (trade.buyAmount || 0);
-                      const isBuyAvailable = trade.type !== 'sell' && (trade.buyAmount !== 0 || trade.buyDate);
-                      const isSellAvailable = trade.type !== 'buy' && (trade.sellAmount !== 0 || trade.sellDate);
+                    <div className="sm:hidden space-y-4">
+                      {trades.length === 0 && (
+                        <p className="py-20 text-center text-slate-500 font-light italic">No records found.</p>
+                      )}
+                      {trades.map((trade) => {
+                        const profit = (trade.sellAmount || 0) - (trade.buyAmount || 0);
+                        const isBuyAvailable = trade.type !== 'sell' && (trade.buyAmount !== 0 || trade.buyDate);
+                        const isSellAvailable = trade.type !== 'buy' && (trade.sellAmount !== 0 || trade.sellDate);
 
-                      return (
-                        <motion.div 
-                          key={trade.id}
-                          layout
-                          className="glass-card p-4 flex flex-col gap-4 border-white/5 active:scale-[0.99] transition-transform"
-                        >
-                          <div className="flex justify-between items-start">
-                            <span className={`text-[8px] px-2 py-0.5 rounded-full font-bold uppercase tracking-[0.2em] ${
-                              trade.type === 'pair' ? 'bg-accent/20 text-accent' : trade.type === 'buy' ? 'bg-profit/20 text-profit' : 'bg-loss/20 text-loss'
-                            }`}>
-                              {trade.type} Position
-                            </span>
-                            <div className="flex gap-2">
-                              <button onClick={() => handleEditTrade(trade)} className="p-2 bg-white/5 rounded-lg text-slate-400"><Pencil size={12} /></button>
-                              <button onClick={() => handleDeleteTrade(trade.id)} className="p-2 bg-white/5 rounded-lg text-slate-400"><Trash2 size={12} /></button>
+                        return (
+                          <motion.div 
+                            key={trade.id}
+                            layout
+                            className="bg-white/[0.04] p-5 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden"
+                          >
+                            <div className={`absolute top-0 left-0 w-1.5 h-full ${trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'}`} />
+                            
+                            <div className="flex justify-between items-center mb-5 pl-2">
+                              <div className="flex items-center gap-2">
+                                <span className={`text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest ${
+                                  trade.type === 'pair' ? 'bg-accent/20 text-accent' : trade.type === 'buy' ? 'bg-profit/20 text-profit' : 'bg-loss/20 text-loss'
+                                }`}>
+                                  {trade.type}
+                                </span>
+                              </div>
+                              <div className="flex gap-2">
+                                <button onClick={() => handleEditTrade(trade)} className="p-2.5 bg-white/5 rounded-xl text-slate-400 haptic-interaction"><Pencil size={14} /></button>
+                                <button onClick={() => handleDeleteTrade(trade.id)} className="p-2.5 bg-white/10 rounded-xl text-slate-100 haptic-interaction"><Trash2 size={14} /></button>
+                              </div>
                             </div>
-                          </div>
 
-                          <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                               <p className="text-[8px] uppercase font-bold text-slate-500 tracking-wider">Entry Side</p>
-                               {isBuyAvailable ? (
-                                 <div>
-                                   <p className="text-sm font-bold text-white">${Number(trade.buyAmount).toLocaleString()}</p>
-                                   <p className="text-[9px] font-mono text-slate-600">{formatDate(trade.buyDate)}</p>
-                                 </div>
-                               ) : <p className="text-[10px] font-bold text-slate-700 italic">N/A</p>}
+                            <div className="grid grid-cols-2 gap-6 mb-6 pl-2">
+                              <div>
+                                <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1.5">Capital</p>
+                                {isBuyAvailable ? (
+                                  <div>
+                                    <p className="text-lg font-heading font-bold text-white">${Number(trade.buyAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                                    <p className="text-[10px] font-mono text-slate-500 font-bold">{formatDate(trade.buyDate)}</p>
+                                  </div>
+                                ) : <p className="text-xs font-bold text-slate-600">None</p>}
+                              </div>
+                              <div>
+                                <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1.5">Return</p>
+                                {isSellAvailable ? (
+                                  <div>
+                                    <p className="text-lg font-heading font-bold text-white">${Number(trade.sellAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                                    <p className="text-[10px] font-mono text-slate-500 font-bold">{formatDate(trade.sellDate)}</p>
+                                  </div>
+                                ) : <p className="text-xs font-bold text-accent/40 italic">In Orbit</p>}
+                              </div>
                             </div>
-                            <div className="space-y-1">
-                               <p className="text-[8px] uppercase font-bold text-slate-500 tracking-wider">Exit Side</p>
-                               {isSellAvailable ? (
-                                 <div>
-                                   <p className="text-sm font-bold text-white">${Number(trade.sellAmount).toLocaleString()}</p>
-                                   <p className="text-[9px] font-mono text-slate-600">{formatDate(trade.sellDate)}</p>
-                                 </div>
-                               ) : <p className="text-[10px] font-bold text-slate-700 italic">Open</p>}
-                            </div>
-                          </div>
 
-                          <div className={`p-3 rounded-lg flex justify-between items-center ${profit >= 0 ? 'bg-profit/10' : 'bg-loss/10'}`}>
-                            <span className="text-[10px] font-bold uppercase text-slate-500">Net Return</span>
-                            <span className={`font-mono text-sm font-black ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                              {profit >= 0 ? '+' : '-'}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                            </span>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
+                            <div className={`p-4 rounded-2xl flex justify-between items-center ${profit >= 0 ? 'bg-profit/10' : 'bg-loss/10'} ml-2`}>
+                              <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Net Differential</span>
+                              <span className={`font-mono text-lg font-black ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                {profit >= 0 ? '+' : '-'}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
                 </div>
               </div>
             </motion.div>
@@ -872,10 +852,10 @@ function doPost(e) {
       </main>
 
       {/* Persistent Footer Nav */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pb-6 sm:pb-8 pt-4 pointer-events-none">
-        <div className="glass shadow-2xl rounded-2xl border border-white/10 flex gap-1 sm:gap-4 p-1.5 sm:p-2 pointer-events-auto scale-90 sm:scale-100">
-          <NavTab id="dashboard" label="Dashboard" icon={LayoutDashboard} />
-          <NavTab id="reports" label="Daily P&L" icon={CalendarDays} />
+      <nav className="fixed bottom-6 left-0 right-0 z-50 flex justify-center pointer-events-none">
+        <div className="glass shadow-[0_20px_50px_rgba(0,0,0,0.8)] rounded-full border border-white/10 flex gap-1 p-1 pointer-events-auto scale-90 sm:scale-100">
+          <NavTab id="dashboard" label="Home" icon={LayoutDashboard} />
+          <NavTab id="reports" label="Ledger" icon={Table} />
         </div>
       </nav>
     </div>
