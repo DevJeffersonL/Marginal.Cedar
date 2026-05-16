@@ -5,8 +5,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { 
-  PlusCircle, 
+  Plus,
   LayoutDashboard, 
+  Table,
   CalendarDays, 
   Trash2, 
   RefreshCw, 
@@ -14,7 +15,6 @@ import {
   TrendingDown,
   BrainCircuit,
   Settings2,
-  Table as TableIcon,
   Pencil,
   XCircle
 } from 'lucide-react';
@@ -383,7 +383,7 @@ function doPost(e) {
           
           <div className="flex items-center gap-1">
             <button onClick={() => setShowMacroCode(true)} className="p-2.5 hover:bg-white/5 rounded-2xl transition-colors text-slate-500 active:text-white haptic-interaction">
-              <TableIcon size={18} />
+              <Table size={18} />
             </button>
             <button 
               onClick={() => {
@@ -520,7 +520,7 @@ function doPost(e) {
                 <div className={`glass-card p-5 sm:p-8 transition-all duration-500 ${editingId ? 'ring-2 ring-accent ring-inset bg-accent/5' : ''}`}>
                   <div className="flex justify-between items-center mb-6 sm:mb-8">
                     <h3 className="font-heading font-bold text-base sm:text-lg flex items-center gap-2">
-                       {editingId ? <Pencil className="text-accent" size={18} /> : <PlusCircle className="text-accent" size={18} />}
+                       {editingId ? <Pencil className="text-accent" size={18} /> : <Plus className="text-accent" size={18} />}
                        {editingId ? 'Edit Transaction' : 'New Transaction'}
                     </h3>
                     
@@ -635,7 +635,7 @@ function doPost(e) {
               <div className="glass-card min-h-[400px] flex flex-col overflow-hidden">
                 <div className="p-5 sm:p-8 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                    <h3 className="font-heading font-bold text-base sm:text-lg flex items-center gap-2">
-                    <TableIcon className="text-accent" size={20} />
+                    <Table className="text-accent" size={20} />
                     Transaction Ledger
                   </h3>
                   <span className="text-[9px] sm:text-[10px] font-mono text-slate-500 uppercase tracking-widest">{trades.length} Records</span>
