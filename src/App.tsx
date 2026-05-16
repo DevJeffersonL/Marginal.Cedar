@@ -336,14 +336,14 @@ function doPost(e) {
   const NavTab = ({ id, label, icon: Icon }: { id: View, label: string, icon: any }) => (
     <button
       onClick={() => setActiveView(id)}
-      className={`flex flex-col items-center gap-1.5 px-8 pt-3 pb-2 transition-all duration-300 relative haptic-interaction ${
+      className={`flex flex-col items-center gap-1 px-6 pt-2.5 pb-2 transition-all duration-300 relative haptic-interaction ${
         activeView === id ? 'text-white' : 'text-slate-500'
       }`}
     >
-      <div className={`p-2 rounded-xl transition-all duration-300 ${activeView === id ? 'bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]' : 'bg-transparent'}`}>
-        <Icon size={22} strokeWidth={activeView === id ? 2.5 : 2} />
+      <div className={`p-1.5 rounded-xl transition-all duration-300 ${activeView === id ? 'bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]' : 'bg-transparent'}`}>
+        <Icon size={20} strokeWidth={activeView === id ? 2.5 : 2} />
       </div>
-      <span className={`text-[9px] font-black uppercase tracking-[0.2em] transition-all ${activeView === id ? 'opacity-100' : 'opacity-40'}`}>{label}</span>
+      <span className={`text-[8px] font-black uppercase tracking-[0.2em] transition-all ${activeView === id ? 'opacity-100' : 'opacity-40'}`}>{label}</span>
       {activeView === id && (
         <motion.div
            layoutId="nav-dot"
@@ -553,7 +553,7 @@ function doPost(e) {
                           <label className={`absolute left-5 top-2 text-[10px] uppercase font-black tracking-widest transition-all ${
                             validationErrors.includes('buyDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Entry Timestamp
+                            Buy Date
                           </label>
                         </div>
                         <div className="relative group/field">
@@ -573,7 +573,7 @@ function doPost(e) {
                           <label className={`absolute left-5 top-2 text-[10px] uppercase font-black tracking-widest transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-[10px] ${
                             validationErrors.includes('buyAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Capital Allocation
+                            Buy Price ($)
                           </label>
                         </div>
                       </div>
@@ -595,7 +595,7 @@ function doPost(e) {
                           <label className={`absolute left-5 top-2 text-[10px] uppercase font-black tracking-widest transition-all ${
                             validationErrors.includes('sellDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Exit Timestamp
+                            Sell Date
                           </label>
                         </div>
                         <div className="relative group/field">
@@ -615,7 +615,7 @@ function doPost(e) {
                           <label className={`absolute left-5 top-2 text-[10px] uppercase font-black tracking-widest transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-[10px] ${
                             validationErrors.includes('sellAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Liquidation Value
+                            Sell Price ($)
                           </label>
                         </div>
                       </div>
@@ -751,48 +751,48 @@ function doPost(e) {
                           <motion.div 
                             key={trade.id}
                             layout
-                            className="bg-white/[0.04] p-5 rounded-[2rem] border border-white/5 shadow-xl relative overflow-hidden"
+                            className="bg-white/[0.03] p-4 rounded-3xl border border-white/5 shadow-xl relative overflow-hidden"
                           >
                             <div className={`absolute top-0 left-0 w-1.5 h-full ${trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'}`} />
                             
-                            <div className="flex justify-between items-center mb-5 pl-2">
+                            <div className="flex justify-between items-center mb-4 pl-2">
                               <div className="flex items-center gap-2">
-                                <span className={`text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-widest ${
+                                <span className={`text-[9px] px-2.5 py-1 rounded-full font-black uppercase tracking-widest ${
                                   trade.type === 'pair' ? 'bg-accent/20 text-accent' : trade.type === 'buy' ? 'bg-profit/20 text-profit' : 'bg-loss/20 text-loss'
                                 }`}>
-                                  {trade.type}
+                                  {trade.type} Position
                                 </span>
                               </div>
-                              <div className="flex gap-2">
-                                <button onClick={() => handleEditTrade(trade)} className="p-2.5 bg-white/5 rounded-xl text-slate-400 haptic-interaction"><Pencil size={14} /></button>
-                                <button onClick={() => handleDeleteTrade(trade.id)} className="p-2.5 bg-white/10 rounded-xl text-slate-100 haptic-interaction"><Trash2 size={14} /></button>
+                              <div className="flex gap-1.5">
+                                <button onClick={() => handleEditTrade(trade)} className="p-2 bg-white/5 rounded-xl text-slate-400 haptic-interaction"><Pencil size={12} /></button>
+                                <button onClick={() => handleDeleteTrade(trade.id)} className="p-2 bg-white/10 rounded-xl text-slate-100 haptic-interaction"><Trash2 size={12} /></button>
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-6 mb-6 pl-2">
+                            <div className="grid grid-cols-2 gap-4 mb-4 pl-2">
                               <div>
-                                <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1.5">Capital</p>
+                                <p className="text-[9px] uppercase font-black text-slate-500 tracking-widest mb-1">Entry Side</p>
                                 {isBuyAvailable ? (
                                   <div>
-                                    <p className="text-lg font-heading font-bold text-white">${Number(trade.buyAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                                    <p className="text-base font-heading font-bold text-white">${Number(trade.buyAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                                     <p className="text-[10px] font-mono text-slate-500 font-bold">{formatDate(trade.buyDate)}</p>
                                   </div>
                                 ) : <p className="text-xs font-bold text-slate-600">None</p>}
                               </div>
                               <div>
-                                <p className="text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1.5">Return</p>
+                                <p className="text-[9px] uppercase font-black text-slate-500 tracking-widest mb-1">Exit Side</p>
                                 {isSellAvailable ? (
                                   <div>
-                                    <p className="text-lg font-heading font-bold text-white">${Number(trade.sellAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                                    <p className="text-base font-heading font-bold text-white">${Number(trade.sellAmount).toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                                     <p className="text-[10px] font-mono text-slate-500 font-bold">{formatDate(trade.sellDate)}</p>
                                   </div>
-                                ) : <p className="text-xs font-bold text-accent/40 italic">In Orbit</p>}
+                                ) : <p className="text-xs font-bold text-accent/40 italic">Open</p>}
                               </div>
                             </div>
 
-                            <div className={`p-4 rounded-2xl flex justify-between items-center ${profit >= 0 ? 'bg-profit/10' : 'bg-loss/10'} ml-2`}>
-                              <span className="text-[10px] font-black uppercase text-white/40 tracking-widest">Net Differential</span>
-                              <span className={`font-mono text-lg font-black ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                            <div className={`p-3 rounded-2xl flex justify-between items-center ${profit >= 0 ? 'bg-profit/10' : 'bg-loss/10'} ml-2`}>
+                              <span className="text-[9px] font-black uppercase text-white/40 tracking-widest">Net Return</span>
+                              <span className={`font-mono text-base font-black ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
                                 {profit >= 0 ? '+' : '-'}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                               </span>
                             </div>
