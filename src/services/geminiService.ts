@@ -11,8 +11,7 @@ export async function analyzeTrades(trades: any[]) {
     return "No trades recorded yet. Start adding deals to get AI-powered insights.";
   }
 
-  const genAI = new GoogleGenAI(API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const ai = new GoogleGenAI({ apiKey: API_KEY });
 
   const tradesContext = trades.map(t => {
     const buyPrice = t.buyAmount || 0;
@@ -38,9 +37,11 @@ export async function analyzeTrades(trades: any[]) {
   `;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: prompt,
+    });
+    return response.text;
   } catch (error) {
     console.error("Gemini Analysis Error:", error);
     return "Unable to perform AI analysis at this moment. Please check your connection or API configuration.";

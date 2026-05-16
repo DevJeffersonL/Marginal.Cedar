@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Plus,
   LayoutDashboard, 
@@ -47,6 +47,7 @@ export default function App() {
   const [isAiAnalyzing, setIsAiAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [formMode, setFormMode] = useState<'pair' | 'buy' | 'sell'>('pair');
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [isGroupedByDate, setIsGroupedByDate] = useState(false);
 
   // Helper: Human-friendly date formatting
@@ -83,7 +84,13 @@ export default function App() {
   useEffect(() => {
     // Load local data
     const localTrades = localStorage.getItem('marginal_trades');
-    if (localTrades) setTrades(JSON.parse(localTrades));
+    if (localTrades) {
+      try {
+        setTrades(JSON.parse(localTrades));
+      } catch (e) {
+        console.error("Failed to parse local trades:", e);
+      }
+    }
 
     const savedUrl = localStorage.getItem('gsUrl') || 'https://script.google.com/macros/s/AKfycbxf9pRWYkJwuyeZIN6umzQ2gSyjGoFDANTC64jrngK6aHmzuKAhp_ZWpVXZ44641NcBVw/exec';
     if (savedUrl) {
@@ -518,8 +525,7 @@ function doPost(e) {
                          "{aiAnalysis}"
                        </p>
                     </motion.div>
-                  )}
-                </div>
+                )}
 
                 {/* Form Card - Compact */}
                 <div className={`glass-card p-5 transition-all duration-500 ${editingId ? 'ring-1 ring-[#0066FF] bg-[#111111]' : 'bg-[#0a0a0a]'}`}>
@@ -635,6 +641,7 @@ function doPost(e) {
                     </button>
                   </form>
                 </div>
+              </div>
 
               {/* Right Column - Ledger */}
               <div className="glass-card min-h-[400px] flex flex-col overflow-hidden bg-[#000000]">
