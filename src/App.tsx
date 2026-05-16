@@ -465,7 +465,7 @@ function doPost(e) {
                     <div className={`text-4xl font-sans font-light tabular-nums tracking-tight leading-none ${
                         totalNetProfit >= 0 ? 'text-white' : 'text-loss'
                     }`}>
-                      <span className="opacity-40 mr-1 text-2xl font-light">$</span>
+                      <span className="opacity-40 mr-1 text-2xl font-light">₹</span>
                       {totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </div>
                   </div>
@@ -565,7 +565,7 @@ function doPost(e) {
                           <label className={`absolute left-4 top-2 text-[10px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-[10px] ${
                             validationErrors.includes('buyAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Buy Price ($)
+                            Buy Price (₹)
                           </label>
                         </div>
                       </div>
@@ -607,7 +607,7 @@ function doPost(e) {
                           <label className={`absolute left-4 top-2 text-[10px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-[10px] ${
                             validationErrors.includes('sellAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Sell Price ($)
+                            Sell Price (₹)
                           </label>
                         </div>
                       </div>
@@ -685,13 +685,13 @@ function doPost(e) {
                                   <span className="text-xs font-mono font-medium text-slate-300">{formatDate(report.date)}</span>
                                 </td>
                                 <td className="px-4 py-3 border-y border-white/5 text-sm font-medium text-white">
-                                  ${report.buyTotal.toLocaleString()}
+                                  ₹{report.buyTotal.toLocaleString()}
                                 </td>
                                 <td className="px-4 py-3 border-y border-white/5 text-sm font-medium text-white">
-                                  ${report.sellTotal.toLocaleString()}
+                                  ₹{report.sellTotal.toLocaleString()}
                                 </td>
                                 <td className={`px-4 py-3 border-y border-r border-white/5 text-right rounded-r-lg font-mono text-sm font-bold ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                  {report.netCashflow >= 0 ? '+' : ''}${Math.abs(report.netCashflow).toLocaleString()}
+                                  {report.netCashflow >= 0 ? '+' : ''}₹{Math.abs(report.netCashflow).toLocaleString()}
                                 </td>
                               </tr>
                             ))}
@@ -719,7 +719,7 @@ function doPost(e) {
                                       <div className="min-w-0">
                                         {isBuyAvailable ? (
                                           <>
-                                            <p className="text-sm font-medium text-white">${Number(trade.buyAmount).toLocaleString()}</p>
+                                            <p className="text-sm font-medium text-white">₹{Number(trade.buyAmount).toLocaleString()}</p>
                                             <p className="text-[10px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>
                                           </>
                                         ) : <span className="text-xs text-slate-600">—</span>}
@@ -730,7 +730,7 @@ function doPost(e) {
                                     <div className="min-w-0">
                                       {isSellAvailable ? (
                                         <>
-                                          <p className="text-sm font-medium text-white">${Number(trade.sellAmount).toLocaleString()}</p>
+                                          <p className="text-sm font-medium text-white">₹{Number(trade.sellAmount).toLocaleString()}</p>
                                           <p className="text-[10px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
                                         </>
                                       ) : <span className="text-xs text-accent/50 italic">Open</span>}
@@ -738,7 +738,7 @@ function doPost(e) {
                                   </td>
                                   <td className="px-4 py-3 border-y border-white/5 group-hover:border-white/10 transition-colors">
                                     <p className={`font-mono text-sm font-medium ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                      {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                      {profit >= 0 ? '+' : ''}₹{Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                     </p>
                                   </td>
                                   <td className="px-4 py-3 rounded-r-lg border-y border-r border-white/5 group-hover:border-white/10 text-right transition-colors pr-4">
@@ -773,12 +773,12 @@ function doPost(e) {
                               <div className="flex justify-between items-center mb-1 pl-2">
                                 <span className="text-[10px] font-mono font-medium text-slate-400">{formatDate(report.date)}</span>
                                 <span className={`text-[9px] font-bold ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                  {report.netCashflow >= 0 ? '+' : '-'}${Math.abs(report.netCashflow).toLocaleString()}
+                                  {report.netCashflow >= 0 ? '+' : '-'}₹{Math.abs(report.netCashflow).toLocaleString()}
                                 </span>
                               </div>
                               <div className="flex justify-between pl-2">
-                                <div className="text-[10px] font-medium text-white/60">IN: <span className="text-white">${report.buyTotal.toLocaleString()}</span></div>
-                                <div className="text-[10px] font-medium text-white/60">OUT: <span className="text-white">${report.sellTotal.toLocaleString()}</span></div>
+                                <div className="text-[10px] font-medium text-white/60">IN: <span className="text-white">₹{report.buyTotal.toLocaleString()}</span></div>
+                                <div className="text-[10px] font-medium text-white/60">OUT: <span className="text-white">₹{report.sellTotal.toLocaleString()}</span></div>
                               </div>
                            </motion.div>
                          ))
@@ -812,14 +812,14 @@ function doPost(e) {
                                 <div className="flex gap-4">
                                   <div>
                                     <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">In</p>
-                                    <p className="text-sm font-medium text-white">${Number(isBuyAvailable ? trade.buyAmount : 0).toLocaleString()}</p>
+                                    <p className="text-sm font-medium text-white">₹{Number(isBuyAvailable ? trade.buyAmount : 0).toLocaleString()}</p>
                                     {isBuyAvailable && <p className="text-[8px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>}
                                   </div>
                                   <div>
                                     <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">Out</p>
                                     {isSellAvailable ? (
                                       <>
-                                        <p className="text-sm font-medium text-white">${Number(trade.sellAmount).toLocaleString()}</p>
+                                        <p className="text-sm font-medium text-white">₹{Number(trade.sellAmount).toLocaleString()}</p>
                                         <p className="text-[8px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
                                       </>
                                     ) : <p className="text-xs font-medium text-accent italic py-1">Open</p>}
@@ -827,7 +827,7 @@ function doPost(e) {
                                 </div>
                                 <div className="text-right pb-1">
                                   <p className={`font-mono text-sm font-semibold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                    {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString()}
+                                    {profit >= 0 ? '+' : ''}₹{Math.abs(profit).toLocaleString()}
                                   </p>
                                 </div>
                               </div>
@@ -876,11 +876,11 @@ function doPost(e) {
                           <td className="px-8 py-5 text-sm font-mono text-white text-right">
                              <div className="flex flex-col items-end gap-1">
                                 <span className={`font-bold ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                  {report.netCashflow >= 0 ? '+' : '-'}${Math.abs(report.netCashflow).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                  {report.netCashflow >= 0 ? '+' : '-'}₹{Math.abs(report.netCashflow).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </span>
                                 <div className="flex gap-4 text-[10px] opacity-40 uppercase tracking-tighter">
-                                   <span>In: ${report.buyTotal.toLocaleString()}</span>
-                                   <span>Out: ${report.sellTotal.toLocaleString()}</span>
+                                   <span>In: ₹{report.buyTotal.toLocaleString()}</span>
+                                   <span>Out: ₹{report.sellTotal.toLocaleString()}</span>
                                 </div>
                              </div>
                           </td>
