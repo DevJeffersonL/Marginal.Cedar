@@ -387,7 +387,7 @@ function doPost(e) {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3">
           <div className="flex flex-col items-end">
              <div className="flex items-center gap-2 bg-[#0a0a0a] px-3 py-1.5 rounded-full border border-white/10">
                 <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSyncing ? 'bg-amber-400 animate-pulse' : gsUrl ? 'bg-profit' : 'bg-slate-600'}`} />
@@ -395,25 +395,6 @@ function doPost(e) {
                   {isSyncing ? 'Syncing...' : gsUrl ? 'Cloud' : 'Local'}
                 </span>
              </div>
-          </div>
-          
-          <div className="flex items-center gap-1">
-            <button onClick={() => setShowMacroCode(true)} className="p-2.5 hover:bg-white/10 rounded-2xl transition-colors text-slate-400 active:text-white haptic-interaction">
-              <Table size={18} />
-            </button>
-            <button 
-              onClick={() => {
-                const url = prompt("Enter Google Apps Script Web App URL:", gsUrl);
-                if (url !== null) {
-                  setGsUrl(url);
-                  localStorage.setItem('gsUrl', url);
-                  if (url) fetchRemoteTrades(url);
-                }
-              }}
-              className="p-2.5 bg-[#0a0a0a] border border-white/10 hover:border-white/20 hover:bg-white/5 rounded-2xl transition-all text-slate-300 haptic-interaction"
-            >
-              <Settings2 size={18} />
-            </button>
           </div>
         </div>
       </header>
