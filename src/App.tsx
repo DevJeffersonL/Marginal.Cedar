@@ -454,9 +454,9 @@ function doPost(e) {
               className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-8"
             >
               {/* Left Column */}
-              <div className="space-y-6 sm:space-y-8">
+              <div className="space-y-4 sm:space-y-6">
                 {/* Hero Card */}
-                <div className="glass-card p-10 sm:p-14 flex flex-col items-center justify-center text-center relative group overflow-hidden">
+                <div className="glass-card p-8 sm:p-10 flex flex-col items-center justify-center text-center relative group overflow-hidden">
                   
                   <div className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     <button 
@@ -510,7 +510,7 @@ function doPost(e) {
                 </div>
 
                 {/* Form Card */}
-                <div className={`glass-card p-6 sm:p-10 transition-all duration-500 ${editingId ? 'ring-1 ring-[#0066FF] bg-[#111111]' : ''}`}>
+                <div className={`glass-card p-6 sm:p-8 transition-all duration-500 ${editingId ? 'ring-1 ring-[#0066FF] bg-[#111111]' : ''}`}>
                   <div className="flex justify-between items-center mb-8">
                     <h3 className="font-heading font-semibold text-lg flex items-center gap-2">
                        {editingId ? <Pencil className="text-accent" size={18} /> : <Plus className="text-accent" size={18} />}
@@ -539,14 +539,14 @@ function doPost(e) {
                               setFormData({...formData, buyDate: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'buyDate'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-3 pt-7 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight ${
+                            className={`peer w-full bg-black border rounded-xl px-4 py-2 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight ${
                               validationErrors.includes('buyDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
                             }`}
                           />
-                          <label className={`absolute left-4 top-2 text-[9px] uppercase font-bold tracking-widest transition-all ${
+                          <label className={`absolute left-4 top-2 text-[10px] uppercase font-bold tracking-widest transition-all ${
                             validationErrors.includes('buyDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Entry Timestamp
+                            Buy Date
                           </label>
                         </div>
                         <div className="relative group/field">
@@ -559,14 +559,14 @@ function doPost(e) {
                               setFormData({...formData, buyAmount: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'buyAmount'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-3 pt-7 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
+                            className={`peer w-full bg-black border rounded-xl px-4 py-2 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
                               validationErrors.includes('buyAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
                             }`}
                           />
-                          <label className={`absolute left-4 top-2 text-[9px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-2 peer-focus:text-[9px] ${
+                          <label className={`absolute left-4 top-2 text-[10px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-[10px] ${
                             validationErrors.includes('buyAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Capital Allocation
+                            Buy Price ($)
                           </label>
                         </div>
                       </div>
@@ -581,14 +581,14 @@ function doPost(e) {
                               setFormData({...formData, sellDate: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'sellDate'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-3 pt-7 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight ${
+                            className={`peer w-full bg-black border rounded-xl px-4 py-2 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight ${
                               validationErrors.includes('sellDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
                             }`}
                           />
-                          <label className={`absolute left-4 top-2 text-[9px] uppercase font-bold tracking-widest transition-all ${
+                          <label className={`absolute left-4 top-2 text-[10px] uppercase font-bold tracking-widest transition-all ${
                             validationErrors.includes('sellDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Exit Timestamp
+                            Sell Date
                           </label>
                         </div>
                         <div className="relative group/field">
@@ -601,14 +601,14 @@ function doPost(e) {
                               setFormData({...formData, sellAmount: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'sellAmount'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-3 pt-7 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
+                            className={`peer w-full bg-black border rounded-xl px-4 py-2 pt-6 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
                               validationErrors.includes('sellAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
                             }`}
                           />
-                          <label className={`absolute left-4 top-2 text-[9px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-xs peer-focus:top-2 peer-focus:text-[9px] ${
+                          <label className={`absolute left-4 top-2 text-[10px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-[10px] ${
                             validationErrors.includes('sellAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Liquidation Value
+                            Sell Price ($)
                           </label>
                         </div>
                       </div>
@@ -616,17 +616,17 @@ function doPost(e) {
 
                     <button 
                       type="submit"
-                      className="w-full bg-[#0066FF] hover:bg-white text-white hover:text-black font-semibold py-4 rounded-xl transition-all active:scale-[0.98] mt-6 flex items-center justify-center gap-2 uppercase tracking-[0.1em] text-xs haptic-interaction"
+                      className="w-full bg-[#0066FF] hover:bg-white text-white hover:text-black font-semibold py-3 rounded-xl transition-all active:scale-[0.98] mt-6 flex items-center justify-center gap-2 uppercase tracking-[0.1em] text-xs haptic-interaction"
                     >
                       {editingId ? <RefreshCw size={16} /> : <Plus size={16} />}
-                      {editingId ? 'Push Updates' : `${formMode === 'pair' ? 'Initialize Trade' : formMode === 'buy' ? 'Record Entry' : 'Record Exit'}`}
+                      {editingId ? 'Update Transaction' : `${formMode === 'pair' ? 'Add Deal' : formMode === 'buy' ? 'Add Buy Entry' : 'Add Sell Entry'}`}
                     </button>
                   </form>
                 </div>
 
               {/* Right Column - Ledger */}
               <div className="glass-card min-h-[400px] flex flex-col overflow-hidden bg-[#111111]">
-                <div className="p-6 sm:p-8 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div className="p-5 sm:p-6 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
                    <h3 className="font-heading font-semibold text-lg flex items-center gap-2">
                     <Table className="text-accent" size={18} />
                     Transaction Ledger
