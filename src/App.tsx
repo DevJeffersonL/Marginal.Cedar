@@ -48,7 +48,7 @@ export default function App() {
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [formMode, setFormMode] = useState<'pair' | 'buy' | 'sell'>('pair');
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isGroupedByDate, setIsGroupedByDate] = useState(false);
+  const [isGroupedByDate, setIsGroupedByDate] = useState(true);
 
   // Helper: Human-friendly date formatting
   const formatDate = (dateStr?: string) => {
