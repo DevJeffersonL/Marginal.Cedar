@@ -47,7 +47,7 @@ export default function App() {
   const [isAiAnalyzing, setIsAiAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [formMode, setFormMode] = useState<'pair' | 'buy' | 'sell'>('pair');
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isGroupedByDate, setIsGroupedByDate] = useState(false);
 
   // Helper: Human-friendly date formatting
   const formatDate = (dateStr?: string) => {
@@ -311,17 +311,30 @@ function doPost(e) {
   }, [trades]);
 
   const dailyReports = useMemo(() => {
-    const reports: Record<string, number> = {};
+    const reports: Record<string, { buy: number, sell: number }> = {};
+    
     trades.forEach(t => {
+      // Group by Buy Date
       if (t.buyDate && t.buyAmount) {
-        reports[t.buyDate] = (reports[t.buyDate] || 0) - t.buyAmount;
+        const d = t.buyDate;
+        if (!reports[d]) reports[d] = { buy: 0, sell: 0 };
+        reports[d].buy += t.buyAmount;
       }
+      // Group by Sell Date
       if (t.sellDate && t.sellAmount) {
-        reports[t.sellDate] = (reports[t.sellDate] || 0) + t.sellAmount;
+        const d = t.sellDate;
+        if (!reports[d]) reports[d] = { buy: 0, sell: 0 };
+        reports[d].sell += t.sellAmount;
       }
     });
+
     return Object.entries(reports)
-      .map(([date, netCashflow]) => ({ date, netCashflow }))
+      .map(([date, values]) => ({ 
+        date, 
+        buyTotal: values.buy, 
+        sellTotal: values.sell,
+        netCashflow: values.sell - values.buy 
+      }))
       .sort((a, b) => b.date.localeCompare(a.date));
   }, [trades]);
 
@@ -625,12 +638,30 @@ function doPost(e) {
 
               {/* Right Column - Ledger */}
               <div className="glass-card min-h-[400px] flex flex-col overflow-hidden bg-[#000000]">
-                <div className="p-4 sm:p-5 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-[#0a0a0a]">
-                   <h3 className="font-heading font-semibold text-base flex items-center gap-2 uppercase tracking-widest">
-                    <Table className="text-accent" size={16} />
-                    Transactions
-                  </h3>
-                  <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">{trades.length} Records</span>
+                <div className="p-4 sm:p-5 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0a0a0a]">
+                   <div className="flex items-center gap-3">
+                    <h3 className="font-heading font-semibold text-base flex items-center gap-2 uppercase tracking-widest">
+                      <Table className="text-accent" size={16} />
+                      Transactions
+                    </h3>
+                    <div className="flex bg-black p-0.5 rounded-lg border border-white/5">
+                      <button 
+                        onClick={() => setIsGroupedByDate(false)}
+                        className={`px-3 py-1 rounded-md text-[8px] uppercase font-bold tracking-widest transition-all ${!isGroupedByDate ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                      >
+                        Raw
+                      </button>
+                      <button 
+                        onClick={() => setIsGroupedByDate(true)}
+                        className={`px-3 py-1 rounded-md text-[8px] uppercase font-bold tracking-widest transition-all ${isGroupedByDate ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                      >
+                        Daily
+                      </button>
+                    </div>
+                  </div>
+                  <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+                    {isGroupedByDate ? `${dailyReports.length} Dates` : `${trades.length} Records`}
+                  </span>
                 </div>
                 
                 <div className="flex-1 p-3 sm:p-4">
@@ -639,132 +670,183 @@ function doPost(e) {
                     <table className="w-full text-left border-separate border-spacing-y-2">
                       <thead>
                         <tr>
-                          <th className="px-4 pb-2 text-[9px] uppercase tracking-wider font-semibold text-slate-600">Entry</th>
-                          <th className="px-4 pb-2 text-[9px] uppercase tracking-wider font-semibold text-slate-600">Exit</th>
-                          <th className="px-4 pb-2 text-[9px] uppercase tracking-wider font-semibold text-slate-600">Net Return</th>
-                          <th className="px-4 pb-2 text-right text-[9px] uppercase tracking-wider font-semibold text-slate-600">Actions</th>
+                          <th className="px-4 pb-2 text-[9px] uppercase tracking-wider font-semibold text-slate-600">
+                            {isGroupedByDate ? 'Aggregate Date' : 'Entry'}
+                          </th>
+                          <th className="px-4 pb-2 text-[9px] uppercase tracking-wider font-semibold text-slate-600">
+                            {isGroupedByDate ? 'Daily Buy Total' : 'Exit'}
+                          </th>
+                          <th className="px-4 pb-2 text-[9px] uppercase tracking-wider font-semibold text-slate-600">
+                            {isGroupedByDate ? 'Daily Sell Total' : 'Net Return'}
+                          </th>
+                          <th className={`px-4 pb-2 text-right text-[9px] uppercase tracking-wider font-semibold text-slate-600 ${isGroupedByDate ? '' : 'pr-4'}`}>
+                            {isGroupedByDate ? 'Day P&L' : 'Actions'}
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
-                        {trades.length === 0 && (
-                          <tr>
-                            <td colSpan={4} className="px-4 py-20 text-center text-slate-500 font-light italic">
-                              No records found.
-                            </td>
-                          </tr>
+                        {isGroupedByDate ? (
+                          // Grouped Desktop View
+                          <>
+                            {dailyReports.length === 0 && (
+                              <tr><td colSpan={4} className="px-4 py-20 text-center text-slate-500 font-light italic">No summaries available.</td></tr>
+                            )}
+                            {dailyReports.map((report) => (
+                              <tr key={report.date} className="bg-[#0a0a0a] hover:bg-white/5 transition-all">
+                                <td className="px-4 py-3 rounded-l-lg border-y border-l border-white/5">
+                                  <span className="text-xs font-mono font-medium text-slate-300">{formatDate(report.date)}</span>
+                                </td>
+                                <td className="px-4 py-3 border-y border-white/5 text-sm font-medium text-white">
+                                  ${report.buyTotal.toLocaleString()}
+                                </td>
+                                <td className="px-4 py-3 border-y border-white/5 text-sm font-medium text-white">
+                                  ${report.sellTotal.toLocaleString()}
+                                </td>
+                                <td className={`px-4 py-3 border-y border-r border-white/5 text-right rounded-r-lg font-mono text-sm font-bold ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                  {report.netCashflow >= 0 ? '+' : ''}${Math.abs(report.netCashflow).toLocaleString()}
+                                </td>
+                              </tr>
+                            ))}
+                          </>
+                        ) : (
+                          // Raw Desktop View (Existing)
+                          <>
+                            {trades.length === 0 && (
+                              <tr><td colSpan={4} className="px-4 py-20 text-center text-slate-500 font-light italic">No records found.</td></tr>
+                            )}
+                            {trades.map((trade) => {
+                              const profit = (trade.sellAmount || 0) - (trade.buyAmount || 0);
+                              const isBuyAvailable = trade.type !== 'sell' && (trade.buyAmount !== 0 || trade.buyDate);
+                              const isSellAvailable = trade.type !== 'buy' && (trade.sellAmount !== 0 || trade.sellDate);
+
+                              return (
+                                <motion.tr 
+                                  key={trade.id} 
+                                  initial={{ opacity: 0 }}
+                                  animate={{ opacity: 1 }}
+                                  className="hover:bg-white/5 transition-colors group bg-[#0a0a0a]"
+                                >
+                                  <td className="px-4 py-3 rounded-l-lg border-y border-l border-white/5 group-hover:border-white/10 transition-colors">
+                                    <div className="flex items-center gap-2">
+                                      <div className="min-w-0">
+                                        {isBuyAvailable ? (
+                                          <>
+                                            <p className="text-sm font-medium text-white">${Number(trade.buyAmount).toLocaleString()}</p>
+                                            <p className="text-[10px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>
+                                          </>
+                                        ) : <span className="text-xs text-slate-600">—</span>}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3 border-y border-white/5 group-hover:border-white/10 transition-colors">
+                                    <div className="min-w-0">
+                                      {isSellAvailable ? (
+                                        <>
+                                          <p className="text-sm font-medium text-white">${Number(trade.sellAmount).toLocaleString()}</p>
+                                          <p className="text-[10px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
+                                        </>
+                                      ) : <span className="text-xs text-accent/50 italic">Open</span>}
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3 border-y border-white/5 group-hover:border-white/10 transition-colors">
+                                    <p className={`font-mono text-sm font-medium ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                      {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                    </p>
+                                  </td>
+                                  <td className="px-4 py-3 rounded-r-lg border-y border-r border-white/5 group-hover:border-white/10 text-right transition-colors pr-4">
+                                    <div className="flex items-center justify-end gap-1">
+                                      <button onClick={() => handleEditTrade(trade)} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-500 hover:text-white transition-all">
+                                        <Pencil size={12} />
+                                      </button>
+                                      <button onClick={() => handleDeleteTrade(trade.id)} className="p-1.5 hover:bg-loss/20 rounded-lg text-slate-500 hover:text-loss transition-all">
+                                        <Trash2 size={12} />
+                                      </button>
+                                    </div>
+                                  </td>
+                                </motion.tr>
+                              );
+                            })}
+                          </>
                         )}
-                        {trades.map((trade) => {
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile/List View - Switchable */}
+                    <div className="sm:hidden space-y-2">
+                       {isGroupedByDate ? (
+                         dailyReports.map((report) => (
+                           <motion.div 
+                            key={report.date}
+                            layout
+                            className="bg-[#0a0a0a] p-3 rounded-xl border border-white/10 relative overflow-hidden"
+                           >
+                              <div className={`absolute top-0 left-0 w-0.5 h-full ${report.netCashflow >= 0 ? 'bg-profit' : 'bg-loss'}`} />
+                              <div className="flex justify-between items-center mb-1 pl-2">
+                                <span className="text-[10px] font-mono font-medium text-slate-400">{formatDate(report.date)}</span>
+                                <span className={`text-[9px] font-bold ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                  {report.netCashflow >= 0 ? '+' : '-'}${Math.abs(report.netCashflow).toLocaleString()}
+                                </span>
+                              </div>
+                              <div className="flex justify-between pl-2">
+                                <div className="text-[10px] font-medium text-white/60">IN: <span className="text-white">${report.buyTotal.toLocaleString()}</span></div>
+                                <div className="text-[10px] font-medium text-white/60">OUT: <span className="text-white">${report.sellTotal.toLocaleString()}</span></div>
+                              </div>
+                           </motion.div>
+                         ))
+                       ) : (
+                         trades.map((trade) => {
                           const profit = (trade.sellAmount || 0) - (trade.buyAmount || 0);
                           const isBuyAvailable = trade.type !== 'sell' && (trade.buyAmount !== 0 || trade.buyDate);
                           const isSellAvailable = trade.type !== 'buy' && (trade.sellAmount !== 0 || trade.sellDate);
 
                           return (
-                            <motion.tr 
-                              key={trade.id} 
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              className="hover:bg-white/5 transition-colors group bg-[#0a0a0a]"
+                            <motion.div 
+                              key={trade.id}
+                              layout
+                              className="bg-[#0a0a0a] p-3 rounded-xl border border-white/10 relative overflow-hidden"
                             >
-                              <td className="px-4 py-3 rounded-l-lg border-y border-l border-white/5 group-hover:border-white/10 transition-colors">
-                                <div className="flex items-center gap-2">
-                                  <div className="min-w-0">
-                                    {isBuyAvailable ? (
+                              <div className={`absolute top-0 left-0 w-0.5 h-full ${trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'}`} />
+                              
+                              <div className="flex justify-between items-center mb-2 pl-2">
+                                  <span className={`text-[7px] px-1 py-0.5 rounded-sm font-semibold uppercase tracking-widest ${
+                                    trade.type === 'pair' ? 'bg-accent/10 text-accent' : trade.type === 'buy' ? 'bg-profit/10 text-profit' : 'bg-loss/10 text-loss'
+                                  }`}>
+                                    {trade.type}
+                                  </span>
+                                  <div className="flex gap-1">
+                                    <button onClick={() => handleEditTrade(trade)} className="p-1 hover:bg-white/10 rounded text-slate-500"><Pencil size={12} /></button>
+                                    <button onClick={() => handleDeleteTrade(trade.id)} className="p-1 hover:bg-loss/20 rounded text-slate-500 hover:text-loss"><Trash2 size={12} /></button>
+                                  </div>
+                              </div>
+
+                              <div className="flex justify-between items-end pl-2">
+                                <div className="flex gap-4">
+                                  <div>
+                                    <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">In</p>
+                                    <p className="text-sm font-medium text-white">${Number(isBuyAvailable ? trade.buyAmount : 0).toLocaleString()}</p>
+                                    {isBuyAvailable && <p className="text-[8px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>}
+                                  </div>
+                                  <div>
+                                    <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">Out</p>
+                                    {isSellAvailable ? (
                                       <>
-                                        <p className="text-sm font-medium text-white">${Number(trade.buyAmount).toLocaleString()}</p>
-                                        <p className="text-[10px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>
+                                        <p className="text-sm font-medium text-white">${Number(trade.sellAmount).toLocaleString()}</p>
+                                        <p className="text-[8px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
                                       </>
-                                    ) : <span className="text-xs text-slate-600">—</span>}
+                                    ) : <p className="text-xs font-medium text-accent italic py-1">Open</p>}
                                   </div>
                                 </div>
-                              </td>
-                              <td className="px-4 py-3 border-y border-white/5 group-hover:border-white/10 transition-colors">
-                                <div className="min-w-0">
-                                  {isSellAvailable ? (
-                                    <>
-                                      <p className="text-sm font-medium text-white">${Number(trade.sellAmount).toLocaleString()}</p>
-                                      <p className="text-[10px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
-                                    </>
-                                  ) : <span className="text-xs text-accent/50 italic">Open</span>}
+                                <div className="text-right pb-1">
+                                  <p className={`font-mono text-sm font-semibold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                    {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString()}
+                                  </p>
                                 </div>
-                              </td>
-                              <td className="px-4 py-3 border-y border-white/5 group-hover:border-white/10 transition-colors">
-                                <p className={`font-mono text-sm font-medium ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                  {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                                </p>
-                              </td>
-                              <td className="px-4 py-3 rounded-r-lg border-y border-r border-white/5 group-hover:border-white/10 text-right transition-colors pr-4">
-                                <div className="flex items-center justify-end gap-1">
-                                  <button onClick={() => handleEditTrade(trade)} className="p-1.5 hover:bg-white/10 rounded-lg text-slate-500 hover:text-white transition-all">
-                                    <Pencil size={12} />
-                                  </button>
-                                  <button onClick={() => handleDeleteTrade(trade.id)} className="p-1.5 hover:bg-loss/20 rounded-lg text-slate-500 hover:text-loss transition-all">
-                                    <Trash2 size={12} />
-                                  </button>
-                                </div>
-                              </td>
-                            </motion.tr>
+                              </div>
+                            </motion.div>
                           );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Mobile/List View - Extremely Compact */}
-                    <div className="sm:hidden space-y-2">
-                      {trades.length === 0 && (
-                        <p className="py-20 text-center text-slate-500 font-light italic">No records found.</p>
-                      )}
-                      {trades.map((trade) => {
-                        const profit = (trade.sellAmount || 0) - (trade.buyAmount || 0);
-                        const isBuyAvailable = trade.type !== 'sell' && (trade.buyAmount !== 0 || trade.buyDate);
-                        const isSellAvailable = trade.type !== 'buy' && (trade.sellAmount !== 0 || trade.sellDate);
-
-                        return (
-                          <motion.div 
-                            key={trade.id}
-                            layout
-                            className="bg-[#0a0a0a] p-3 rounded-xl border border-white/10 relative overflow-hidden"
-                          >
-                            <div className={`absolute top-0 left-0 w-0.5 h-full ${trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'}`} />
-                            
-                            <div className="flex justify-between items-center mb-2 pl-2">
-                                <span className={`text-[7px] px-1 py-0.5 rounded-sm font-semibold uppercase tracking-widest ${
-                                  trade.type === 'pair' ? 'bg-accent/10 text-accent' : trade.type === 'buy' ? 'bg-profit/10 text-profit' : 'bg-loss/10 text-loss'
-                                }`}>
-                                  {trade.type}
-                                </span>
-                                <div className="flex gap-1">
-                                  <button onClick={() => handleEditTrade(trade)} className="p-1 hover:bg-white/10 rounded text-slate-500"><Pencil size={12} /></button>
-                                  <button onClick={() => handleDeleteTrade(trade.id)} className="p-1 hover:bg-loss/20 rounded text-slate-500 hover:text-loss"><Trash2 size={12} /></button>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-between items-end pl-2">
-                              <div className="flex gap-4">
-                                <div>
-                                  <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">In</p>
-                                  <p className="text-sm font-medium text-white">${Number(isBuyAvailable ? trade.buyAmount : 0).toLocaleString()}</p>
-                                  {isBuyAvailable && <p className="text-[8px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>}
-                                </div>
-                                <div>
-                                  <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">Out</p>
-                                  {isSellAvailable ? (
-                                    <>
-                                      <p className="text-sm font-medium text-white">${Number(trade.sellAmount).toLocaleString()}</p>
-                                      <p className="text-[8px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
-                                    </>
-                                  ) : <p className="text-xs font-medium text-accent italic py-1">Open</p>}
-                                </div>
-                              </div>
-                              <div className="text-right pb-1">
-                                <p className={`font-mono text-sm font-semibold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                  {profit >= 0 ? '+' : ''}${Math.abs(profit).toLocaleString()}
-                                </p>
-                              </div>
-                            </div>
-                          </motion.div>
-                        );
-                      })}
+                        })
+                       )}
                     </div>
                 </div>
               </div>
@@ -802,9 +884,17 @@ function doPost(e) {
                       )}
                       {dailyReports.map((report, idx) => (
                         <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
-                          <td className="px-8 py-5 text-sm font-medium">{formatDate(report.date)}</td>
-                          <td className={`px-8 py-5 text-sm font-bold text-right ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
-                             {report.netCashflow >= 0 ? '+' : ''}${report.netCashflow.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          <td className="px-8 py-5 text-sm font-medium text-slate-300">{formatDate(report.date)}</td>
+                          <td className="px-8 py-5 text-sm font-mono text-white text-right">
+                             <div className="flex flex-col items-end gap-1">
+                                <span className={`font-bold ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                  {report.netCashflow >= 0 ? '+' : '-'}${Math.abs(report.netCashflow).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                </span>
+                                <div className="flex gap-4 text-[10px] opacity-40 uppercase tracking-tighter">
+                                   <span>In: ${report.buyTotal.toLocaleString()}</span>
+                                   <span>Out: ${report.sellTotal.toLocaleString()}</span>
+                                </div>
+                             </div>
                           </td>
                         </tr>
                       ))}
