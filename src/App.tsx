@@ -16,9 +16,11 @@ import {
   BrainCircuit,
   Settings2,
   Pencil,
-  XCircle
+  XCircle,
+  Clock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import debounce from 'lodash.debounce';
 import { analyzeTrades } from './services/geminiService';
 
 // --- Types ---
@@ -43,6 +45,7 @@ export default function App() {
   const [activeView, setActiveView] = useState<View>('dashboard');
   const [isSyncing, setIsSyncing] = useState(false);
   const [gsUrl, setGsUrl] = useState<string>('');
+  const [gsSecret, setGsSecret] = useState<string>(localStorage.getItem('gsSecret') || '');
   const [lastSynced, setLastSynced] = useState<string | null>(null);
   const [isAiAnalyzing, setIsAiAnalyzing] = useState(false);
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
@@ -81,6 +84,38 @@ export default function App() {
   });
 
   // --- Persistence & Sync ---
+  const debouncedSync = useMemo(
+    () => debounce(async (data: Trade[]) => {
+      if (!gsUrl) return;
+      setIsSyncing(true);
+      try {
+        const mappedData = data.map(t => ({
+          id: t.id,
+          type: t.type,
+          buyDate: t.buyDate || '',
+          buyAmount: t.buyAmount || 0,
+          sellDate: t.sellDate || '',
+          sellAmount: t.sellAmount || 0
+        }));
+
+        await fetch(gsUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'sync', data: mappedData, secret: gsSecret }),
+        });
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        setLastSynced(time);
+        localStorage.setItem('last_synced_time', time);
+      } catch (error) {
+        console.error("Sheets Sync Error:", error);
+      } finally {
+        setIsSyncing(false);
+      }
+    }, 2000),
+    [gsUrl, gsSecret]
+  );
+
   useEffect(() => {
     // Load local data
     const localTrades = localStorage.getItem('marginal_trades');
@@ -93,91 +128,46 @@ export default function App() {
     }
 
     const savedUrl = localStorage.getItem('gsUrl') || '';
+    const savedSecret = localStorage.getItem('gsSecret') || '';
+    
     if (savedUrl) {
       setGsUrl(savedUrl);
-      fetchRemoteTrades(savedUrl);
+      setGsSecret(savedSecret);
+      fetchRemoteTrades(savedUrl, savedSecret);
     }
     
     const savedSyncTime = localStorage.getItem('last_synced_time');
     if (savedSyncTime) setLastSynced(savedSyncTime);
+
+    return () => {
+      debouncedSync.cancel();
+    };
   }, []);
 
   const saveLocally = (updatedTrades: Trade[]) => {
     localStorage.setItem('marginal_trades', JSON.stringify(updatedTrades));
-    if (gsUrl) syncToSheets(updatedTrades);
+    if (gsUrl) debouncedSync(updatedTrades);
   };
 
-  const [gsSecret, setGsSecret] = useState<string>(localStorage.getItem('gsSecret') || '');
-
-  const fetchRemoteTrades = async (url: string) => {
+  const fetchRemoteTrades = async (url: string, secret?: string) => {
     if (!url) return;
     setIsSyncing(true);
     try {
       const targetUrl = new URL(url);
-      if (gsSecret) targetUrl.searchParams.set('secret', gsSecret);
+      if (secret || gsSecret) targetUrl.searchParams.set('secret', secret || gsSecret);
       
       const response = await fetch(targetUrl.toString());
       const data = await response.json();
+      
       if (Array.isArray(data)) {
-        // Defensive Mapping: Handle case-insensitive headers and common variations
-        const sanitizedData = data.map((item: any) => {
-          // Normalize keys to lowercase for matching
-          const normalizedItem: any = {};
-          Object.keys(item).forEach(k => normalizedItem[k.toLowerCase().replace(/\s+/g, '')] = item[k]);
-
-          const buyAmt = Number(normalizedItem.buyamount || normalizedItem.buyprice || 0);
-          const sellAmt = Number(normalizedItem.sellamount || normalizedItem.sellprice || 0);
-          const buyD = normalizedItem.buydate || undefined;
-          const sellD = normalizedItem.selldate || undefined;
-
-          return {
-            id: normalizedItem.id || crypto.randomUUID(),
-            type: normalizedItem.type || (buyAmt > 0 && sellAmt > 0 ? 'pair' : buyAmt > 0 ? 'buy' : 'sell'),
-            buyAmount: buyAmt,
-            sellAmount: sellAmt,
-            buyDate: buyD,
-            sellDate: sellD
-          };
-        });
-        
-        setTrades(sanitizedData);
-        localStorage.setItem('marginal_trades', JSON.stringify(sanitizedData));
+        setTrades(data);
+        localStorage.setItem('marginal_trades', JSON.stringify(data));
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         setLastSynced(time);
         localStorage.setItem('last_synced_time', time);
       }
     } catch (error) {
       console.error("Remote Sync Failed:", error);
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
-  // Standardize values for sync
-  const syncToSheets = async (data: Trade[]) => {
-    if (!gsUrl) return;
-    setIsSyncing(true);
-    try {
-      const mappedData = data.map(t => ({
-        id: t.id,
-        type: t.type,
-        buyDate: t.buyDate || '',
-        buyAmount: t.buyAmount || 0,
-        sellDate: t.sellDate || '',
-        sellAmount: t.sellAmount || 0
-      }));
-
-      await fetch(gsUrl, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'sync', data: mappedData, secret: gsSecret }),
-      });
-      const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      setLastSynced(time);
-      localStorage.setItem('last_synced_time', time);
-    } catch (error) {
-      console.error("Sheets Sync Error:", error);
     } finally {
       setIsSyncing(false);
     }
@@ -501,6 +491,16 @@ function doGet(e) {
                 <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest hidden sm:inline">
                   {isSyncing ? 'Syncing...' : gsUrl ? 'Cloud' : 'Local'}
                 </span>
+                <AnimatePresence>
+                  {isSyncing && (
+                    <motion.div 
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      exit={{ scale: 0 }}
+                      className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-black"
+                    />
+                  )}
+                </AnimatePresence>
                 <Settings2 size={12} className="text-slate-500" />
              </button>
           </div>
@@ -651,16 +651,18 @@ function doGet(e) {
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-col items-end gap-1">
                     <div className="flex items-center gap-2 bg-[#111111] px-3 py-1.5 rounded-full border border-white/10">
                       <div className={`w-1.5 h-1.5 rounded-full ${totalNetProfit >= 0 ? 'bg-profit' : 'bg-loss animate-pulse'}`} />
-                      <span className="text-[9px] uppercase font-medium tracking-widest text-[#e5e5e5]">
+                      <span className="text-[9px] uppercase font-bold tracking-widest text-[#e5e5e5]">
                         {totalNetProfit >= 0 ? 'Bullish' : 'Bearish'}
                       </span>
                     </div>
-                    <div className="text-[9px] uppercase font-medium tracking-widest text-slate-500">
-                      {trades.length} Records
-                    </div>
+                    {lastSynced && (
+                      <div className="flex items-center gap-1 text-[8px] uppercase font-bold tracking-tighter text-slate-600">
+                        <Clock size={8} /> {lastSynced}
+                      </div>
+                    )}
                   </div>
                   
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
