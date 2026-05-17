@@ -1,15 +1,18 @@
 /**
  * MARGINAL TRADE TRACKER - PRO MACRO
- * Version: 2.0 (Support for Independent Buy/Sell & Auto-Formatting)
+ * Version: 2.1 (Added SECRET_KEY Security)
  * 
  * Instructions:
  * 1. Create a Google Sheet.
  * 2. Extensions > Apps Script.
  * 3. Paste this code and Save.
- * 4. Deploy > New Deployment > Web App.
- * 5. Execute as: Me, Access: Anyone.
- * 6. Copy the URL into the App Settings.
+ * 4. IMPORTANT: Change the SECRET_KEY below to a unique password.
+ * 5. Deploy > New Deployment > Web App.
+ * 6. Execute as: Me, Access: Anyone.
+ * 7. Copy the URL and your Secret Key into the App Settings.
  */
+
+var SECRET_KEY = "your_secret_password_here";
 
 function setupSheet(sheet) {
   var headers = [["ID", "Type", "Buy Date", "Buy Amt ($)", "Sell Date", "Sell Amt ($)", "Net P&L ($)"]];
@@ -35,6 +38,13 @@ function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   try {
     var payload = JSON.parse(e.postData.contents);
+    
+    // Security Check
+    if (payload.secret !== SECRET_KEY) {
+      return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Unauthorized' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     if (payload.action === 'sync') {
       var data = payload.data || [];
       
@@ -91,6 +101,12 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  // Security Check
+  if (e.parameter.secret !== SECRET_KEY) {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Unauthorized' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
   try {
     if (sheet.getLastRow() <= 1) return ContentService.createTextOutput("[]").setMimeType(ContentService.MimeType.JSON);

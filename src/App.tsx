@@ -92,7 +92,7 @@ export default function App() {
       }
     }
 
-    const savedUrl = localStorage.getItem('gsUrl') || 'https://script.google.com/macros/s/AKfycbxf9pRWYkJwuyeZIN6umzQ2gSyjGoFDANTC64jrngK6aHmzuKAhp_ZWpVXZ44641NcBVw/exec';
+    const savedUrl = localStorage.getItem('gsUrl') || '';
     if (savedUrl) {
       setGsUrl(savedUrl);
       fetchRemoteTrades(savedUrl);
@@ -107,11 +107,16 @@ export default function App() {
     if (gsUrl) syncToSheets(updatedTrades);
   };
 
+  const [gsSecret, setGsSecret] = useState<string>(localStorage.getItem('gsSecret') || '');
+
   const fetchRemoteTrades = async (url: string) => {
     if (!url) return;
     setIsSyncing(true);
     try {
-      const response = await fetch(url);
+      const targetUrl = new URL(url);
+      if (gsSecret) targetUrl.searchParams.set('secret', gsSecret);
+      
+      const response = await fetch(targetUrl.toString());
       const data = await response.json();
       if (Array.isArray(data)) {
         // Defensive Mapping: Handle case-insensitive headers and common variations
@@ -166,7 +171,7 @@ export default function App() {
         method: 'POST',
         mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'sync', data: mappedData }),
+        body: JSON.stringify({ action: 'sync', data: mappedData, secret: gsSecret }),
       });
       const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       setLastSynced(time);
@@ -181,30 +186,118 @@ export default function App() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [showMacroCode, setShowMacroCode] = useState(false);
 
-  const macroCode = `function doGet() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = sheet.getDataRange().getValues();
-  var headers = data.shift();
-  var json = data.map(function(row) {
-    var obj = {};
-    headers.forEach(function(header, i) {
-      obj[header.toLowerCase().replace(/\\s+/g, '')] = row[i];
-    });
-    return obj;
-  });
-  return ContentService.createTextOutput(JSON.stringify(json)).setMimeType(ContentService.MimeType.JSON);
+  const macroCode = `/**
+ * MARGINAL TRADE TRACKER - PRO MACRO
+ * Version: 2.1 (Added SECRET_KEY Security)
+ * 
+ * Instructions:
+ * 1. Create a Google Sheet.
+ * 2. Extensions > Apps Script.
+ * 3. Paste this code and Save.
+ * 4. IMPORTANT: Change the SECRET_KEY below to a unique password.
+ * 5. Deploy > New Deployment > Web App.
+ * 6. Execute as: Me, Access: Anyone.
+ * 7. Copy the URL and your Secret Key into the App Settings.
+ */
+
+var SECRET_KEY = "your_secret_password_here";
+
+function setupSheet(sheet) {
+  var headers = [["ID", "Type", "Buy Date", "Buy Amt ($)", "Sell Date", "Sell Amt ($)", "Net P&L ($)"]];
+  var headerRange = sheet.getRange(1, 1, 1, 7);
+  headerRange.setValues(headers);
+  
+  headerRange.setFontWeight("bold")
+             .setBackground("#09090b")
+             .setFontColor("#6366f1")
+             .setHorizontalAlignment("center");
+  
+  sheet.setFrozenRows(1);
+  sheet.getRange("D:D").setNumberFormat("$#,##0.00");
+  sheet.getRange("F:G").setNumberFormat("$#,##0.00");
+  sheet.autoResizeColumns(1, 7);
 }
 
 function doPost(e) {
-  var params = JSON.parse(e.postData.contents);
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  if (params.action === 'sync') {
-    sheet.clear();
-    sheet.appendRow(['ID', 'Type', 'Buy Date', 'Buy Amount', 'Sell Date', 'Sell Amount']);
-    params.data.forEach(function(t) {
-      sheet.appendRow([t.id, t.type, t.buyDate, t.buyAmount, t.sellDate, t.sellAmount]);
+  try {
+    var payload = JSON.parse(e.postData.contents);
+    if (payload.secret !== SECRET_KEY) {
+      return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Unauthorized' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    if (payload.action === 'sync') {
+      var data = payload.data || [];
+      if (sheet.getLastRow() === 0) setupSheet(sheet);
+      
+      var lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        sheet.getRange(2, 1, lastRow, 7).clearContent();
+        sheet.getRange(2, 1, lastRow, 7).setFontColor("#ffffff");
+      }
+      
+      if (data.length > 0) {
+        var rows = [];
+        var colors = [];
+        
+        data.forEach(function(item) {
+          var buy = parseFloat(item.buyAmount) || 0;
+          var sell = parseFloat(item.sellAmount) || 0;
+          var profit = sell - buy;
+          
+          rows.push([
+            item.id,
+            (item.type || "pair").toUpperCase(),
+            item.buyDate || "-",
+            buy || "",
+            item.sellDate || "-",
+            sell || "",
+            profit
+          ]);
+          
+          var rowColors = ["#ffffff", "#94a3b8", "#ffffff", "#ffffff", "#ffffff", "#ffffff", "#ffffff"];
+          rowColors[6] = profit >= 0 ? "#10b981" : "#ef4444"; 
+          colors.push(rowColors);
+        });
+        
+        var targetRange = sheet.getRange(2, 1, rows.length, 7);
+        targetRange.setValues(rows);
+        targetRange.setFontColors(colors);
+      }
+      
+      sheet.autoResizeColumns(1, 7);
+      return ContentService.createTextOutput(JSON.stringify({ status: 'success', count: data.length }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  if (e.parameter.secret !== SECRET_KEY) {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Unauthorized' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  try {
+    if (sheet.getLastRow() <= 1) return ContentService.createTextOutput("[]").setMimeType(ContentService.MimeType.JSON);
+    var data = sheet.getDataRange().getValues().slice(1);
+    var result = data.map(function(row) {
+      return {
+        id: row[0].toString(),
+        type: row[1].toString().toLowerCase(),
+        buyDate: row[2] === "-" ? undefined : row[2],
+        buyAmount: parseFloat(row[3]) || 0,
+        sellDate: row[4] === "-" ? undefined : row[4],
+        sellAmount: parseFloat(row[5]) || 0
+      };
     });
-    return ContentService.createTextOutput(JSON.stringify({status: 'success'})).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput("[]").setMimeType(ContentService.MimeType.JSON);
   }
 }`;
 
@@ -373,6 +466,17 @@ function doPost(e) {
     </button>
   );
 
+  const [showSettings, setShowSettings] = useState(false);
+
+  const saveSettings = (url: string, secret: string) => {
+    localStorage.setItem('gsUrl', url);
+    localStorage.setItem('gsSecret', secret);
+    setGsUrl(url);
+    setGsSecret(secret);
+    if (url) fetchRemoteTrades(url);
+    setShowSettings(false);
+  };
+
   return (
     <div className="min-h-screen pb-24 selection:bg-[#0066FF]/20 bg-black">
       {/* Header */}
@@ -389,15 +493,92 @@ function doPost(e) {
 
           <div className="flex items-center gap-3">
           <div className="flex flex-col items-end">
-             <div className="flex items-center gap-2 bg-[#0a0a0a] px-3 py-1.5 rounded-full border border-white/10">
+             <button 
+                onClick={() => setShowSettings(true)}
+                className="flex items-center gap-2 bg-[#0a0a0a] px-3 py-1.5 rounded-full border border-white/10 hover:bg-white/5 transition-all"
+              >
                 <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSyncing ? 'bg-amber-400 animate-pulse' : gsUrl ? 'bg-profit' : 'bg-slate-600'}`} />
-                <span className="text-[10px] uppercase font-medium text-slate-400 tracking-widest hidden sm:inline">
+                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest hidden sm:inline">
                   {isSyncing ? 'Syncing...' : gsUrl ? 'Cloud' : 'Local'}
                 </span>
-             </div>
+                <Settings2 size={12} className="text-slate-500" />
+             </button>
           </div>
         </div>
       </header>
+
+      {/* Settings Modal */}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              className="glass-card w-full max-w-md overflow-hidden flex flex-col bg-[#0a0a0a]"
+            >
+              <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                <div>
+                  <h3 className="font-heading font-bold text-lg">Sync Settings</h3>
+                  <p className="text-xs text-slate-500">Configure your Google Sheets integration</p>
+                </div>
+                <button onClick={() => setShowSettings(false)} className="p-2 hover:bg-white/10 rounded-full">
+                  <XCircle size={20} />
+                </button>
+              </div>
+              
+              <div className="p-6 space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Script Web App URL</label>
+                  <input 
+                    type="text" 
+                    value={gsUrl}
+                    onChange={(e) => setGsUrl(e.target.value)}
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs font-mono focus:outline-hidden focus:border-accent transition-all"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-[10px] uppercase font-bold tracking-widest text-slate-500">Security Secret Key</label>
+                  <input 
+                    type="password" 
+                    value={gsSecret}
+                    onChange={(e) => setGsSecret(e.target.value)}
+                    placeholder="Same as SECRET_KEY in your macro"
+                    className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs font-mono focus:outline-hidden focus:border-accent transition-all"
+                  />
+                  <p className="text-[9px] text-slate-500 leading-relaxed">
+                    Used to authenticate your app with your private Google Sheet script.
+                  </p>
+                </div>
+
+                <div className="pt-2">
+                  <button 
+                    onClick={() => setShowMacroCode(true)}
+                    className="text-[10px] uppercase font-bold text-accent hover:underline flex items-center gap-2"
+                  >
+                    View / Copy Macro Code
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 border-t border-white/5 bg-white/5 flex gap-4">
+                <button 
+                  onClick={() => saveSettings(gsUrl, gsSecret)}
+                  className="flex-1 bg-accent py-3 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-accent/80 transition-all text-white"
+                >
+                  Save Settings
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Macro Modal */}
       <AnimatePresence>
