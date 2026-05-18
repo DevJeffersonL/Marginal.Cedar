@@ -578,14 +578,14 @@ export default function App() {
   return (
     <div className="min-h-screen pb-24 selection:bg-[#0066FF]/20 bg-black">
       {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-white/10 py-4 px-4 sm:px-12 flex items-center justify-between transition-all duration-500">
+      <header className="sticky top-0 z-50 glass border-b border-white/5 py-3 sm:py-4 px-4 sm:px-8 lg:px-12 flex items-center justify-between transition-all duration-500">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-accent flex items-center justify-center shrink-0 haptic-interaction">
-            <TrendingUp className="text-white" size={20} />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-accent flex items-center justify-center shrink-0 haptic-interaction">
+            <TrendingUp className="text-white" size={16} />
           </div>
-          <div className="hidden xs:block">
-            <h1 className="font-heading font-semibold text-xl tracking-tight leading-none text-white uppercase">Marginal</h1>
-            <p className="text-[9px] font-mono text-slate-500 mt-1 uppercase tracking-[0.2em]">Alpha Engine v2</p>
+          <div>
+            <h1 className="font-heading font-bold text-base sm:text-xl tracking-tight leading-none text-white uppercase">Marginal</h1>
+            <p className="text-[8px] sm:text-[9px] font-mono text-slate-500 mt-0.5 sm:mt-1 uppercase tracking-[0.2em] hidden xs:block">Alpha Engine v2</p>
           </div>
         </div>
 
@@ -733,7 +733,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-6 md:p-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
         <AnimatePresence mode="wait">
           {activeView === 'dashboard' ? (
             <motion.div 
@@ -741,7 +741,7 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr] gap-6"
+              className="grid grid-cols-1 lg:grid-cols-[380px_1fr] xl:grid-cols-[420px_1fr] gap-6 lg:gap-8 items-start"
             >
               {/* Left Column */}
               <div className="space-y-4">
@@ -820,7 +820,7 @@ export default function App() {
                   <form onSubmit={handleAddTrade} className="space-y-4" noValidate>
                     <div className="space-y-4">
                       {/* Buy Section */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div className="relative group/field">
                           <input 
                             type="date" 
@@ -862,7 +862,7 @@ export default function App() {
                       </div>
 
                       {/* Sell Section */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <div className="relative group/field">
                           <input 
                             type="date" 
@@ -1049,16 +1049,18 @@ export default function App() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="max-w-3xl mx-auto"
+              className="max-w-4xl mx-auto"
             >
-              <div className="glass-card">
-                 <div className="p-8 border-b border-white/5 flex justify-between items-center">
-                   <h3 className="font-heading font-bold text-lg flex items-center gap-2">
+              <div className="glass-card overflow-hidden">
+                 <div className="p-6 sm:p-8 border-b border-white/5 flex justify-between items-center bg-[#0a0a0a]">
+                   <h3 className="font-heading font-bold text-base sm:text-lg flex items-center gap-2 uppercase tracking-widest">
                     <CalendarDays className="text-accent" size={20} />
-                    Daily P&L Report
+                    Daily Performance
                   </h3>
                 </div>
-                <div className="overflow-hidden">
+                
+                {/* Desktop View */}
+                <div className="hidden sm:block overflow-hidden">
                   <table className="w-full text-left">
                     <thead className="bg-white/[0.02] border-b border-white/5">
                       <tr>
@@ -1069,7 +1071,7 @@ export default function App() {
                     <tbody className="divide-y divide-white/5 font-mono">
                        {dailyReports.length === 0 && (
                         <tr>
-                          <td colSpan={2} className="px-6 py-24 text-center text-slate-500 font-light italic">
+                          <td colSpan={2} className="px-8 py-24 text-center text-slate-500 font-light italic">
                             Insufficient data for daily reports.
                           </td>
                         </tr>
@@ -1080,7 +1082,7 @@ export default function App() {
                           <td className="px-8 py-5 text-sm font-mono text-white text-right">
                              <div className="flex flex-col items-end gap-1">
                                 <span className={`font-bold ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                  {report.netCashflow >= 0 ? '+' : '-'}₹{Math.abs(report.netCashflow).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                  {report.netCashflow >= 0 ? '+' : ''}₹{Math.abs(report.netCashflow).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                                 </span>
                                 <div className="flex gap-4 text-[10px] opacity-40 uppercase tracking-tighter">
                                    <span>In: ₹{report.buyTotal.toLocaleString()}</span>
@@ -1092,6 +1094,35 @@ export default function App() {
                       ))}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="sm:hidden p-4 space-y-3 bg-black">
+                  {dailyReports.length === 0 && (
+                    <div className="py-20 text-center text-slate-500 font-light italic text-sm">
+                      Insufficient data for daily reports.
+                    </div>
+                  )}
+                  {dailyReports.map((report, idx) => (
+                    <div key={idx} className="bg-[#0a0a0a] p-4 rounded-xl border border-white/5 flex flex-col gap-3">
+                      <div className="flex justify-between items-center border-b border-white/5 pb-2">
+                        <span className="text-[10px] font-mono font-medium text-slate-400">{formatDate(report.date)}</span>
+                        <span className={`text-xs font-bold font-mono ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
+                          {report.netCashflow >= 0 ? '+' : ''}₹{Math.abs(report.netCashflow).toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <div className="flex flex-col">
+                          <span className="text-[8px] uppercase text-slate-500 font-bold tracking-widest">Inflow</span>
+                          <span className="text-xs font-mono text-white">₹{report.buyTotal.toLocaleString()}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="text-[8px] uppercase text-slate-500 font-bold tracking-widest">Outflow</span>
+                          <span className="text-xs font-mono text-white">₹{report.sellTotal.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </motion.div>
