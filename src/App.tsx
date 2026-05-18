@@ -22,7 +22,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import debounce from 'lodash.debounce';
-import { analyzeTrades } from './services/geminiService';
 
 // --- Types ---
 interface Trade {
@@ -560,9 +559,24 @@ export default function App() {
 
   const handleAiAnalysis = async () => {
     setIsAiAnalyzing(true);
-    const analysis = await analyzeTrades(trades);
-    setAiAnalysis(analysis);
-    setIsAiAnalyzing(false);
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trades }),
+      });
+      const data = await response.json();
+      if (data.error) {
+        setAiAnalysis(data.error);
+      } else {
+        setAiAnalysis(data.analysis);
+      }
+    } catch (error) {
+      console.error("AI Analysis Failed:", error);
+      setAiAnalysis("Unable to perform AI analysis at this moment.");
+    } finally {
+      setIsAiAnalyzing(false);
+    }
   };
 
   const saveSettings = React.useCallback((url: string, secret: string) => {
@@ -591,26 +605,6 @@ export default function App() {
 
           <div className="flex items-center gap-3">
           <div className="flex flex-col items-end">
-             <button 
-                onClick={() => setShowSettings(true)}
-                className="flex items-center gap-2 bg-[#0a0a0a] px-3 py-1.5 rounded-full border border-white/10 hover:bg-white/5 transition-all"
-              >
-                <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isSyncing ? 'bg-amber-400 animate-pulse' : gsUrl ? 'bg-profit' : 'bg-slate-600'}`} />
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-widest hidden sm:inline">
-                  {isSyncing ? 'Syncing...' : gsUrl ? 'Cloud' : 'Local'}
-                </span>
-                <AnimatePresence>
-                  {isSyncing && (
-                    <motion.div 
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      exit={{ scale: 0 }}
-                      className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-accent rounded-full border-2 border-black"
-                    />
-                  )}
-                </AnimatePresence>
-                <Settings2 size={12} className="text-slate-500" />
-             </button>
           </div>
         </div>
       </header>
@@ -1137,6 +1131,15 @@ export default function App() {
         <div className="glass shadow-[0_20px_50px_rgba(0,0,0,0.8)] rounded-full border border-white/10 flex gap-1 p-1 pointer-events-auto scale-90 sm:scale-100">
           <NavTab id="dashboard" label="Home" icon={LayoutDashboard} activeView={activeView} onClick={setActiveView} />
           <NavTab id="reports" label="Ledger" icon={Table} activeView={activeView} onClick={setActiveView} />
+          <button
+            onClick={() => setShowSettings(true)}
+            className="flex flex-col items-center gap-1 px-6 pt-2.5 pb-2 transition-all duration-300 relative haptic-interaction text-slate-500 hover:text-white"
+          >
+            <div className="p-1.5 rounded-xl bg-transparent">
+              <Settings2 size={20} strokeWidth={2} />
+            </div>
+            <span className="text-[8px] font-black uppercase tracking-[0.2em] opacity-40">Setup</span>
+          </button>
         </div>
       </nav>
     </div>
