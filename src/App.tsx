@@ -190,18 +190,18 @@ const NavTab = React.memo(({
   return (
     <button
       onClick={() => onClick(id)}
-      className={`flex flex-col items-center gap-1 px-6 pt-2.5 pb-2 transition-all duration-300 relative haptic-interaction ${
+      className={`flex flex-col items-center justify-center gap-1.5 px-7 pt-3 pb-2.5 transition-all duration-300 relative haptic-interaction ${
         isActive ? 'text-white' : 'text-slate-500'
       }`}
     >
-      <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]' : 'bg-transparent'}`}>
-        <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+      <div className={`p-2 rounded-2xl transition-all duration-500 ${isActive ? 'bg-white/10 ring-1 ring-white/10 shadow-[0_0_20px_rgba(255,255,255,0.05)] scale-110' : 'bg-transparent hover:bg-white/5'}`}>
+        <Icon size={22} strokeWidth={isActive ? 2.5 : 2} />
       </div>
-      <span className={`text-[8px] font-black uppercase tracking-[0.2em] transition-all ${isActive ? 'opacity-100' : 'opacity-40'}`}>{label}</span>
+      <span className={`text-[9px] font-bold uppercase tracking-[0.2em] transition-all ${isActive ? 'opacity-100' : 'opacity-30'}`}>{label}</span>
       {isActive && (
         <motion.div
            layoutId="nav-dot"
-           className="absolute -bottom-1 w-1 h-1 bg-accent rounded-full shadow-[0_0_8px_#6366f1]"
+           className="absolute bottom-0 w-1 h-1 bg-accent rounded-full shadow-[0_0_10px_#6366f1]"
         />
       )}
     </button>
@@ -284,41 +284,49 @@ const MobileTradeCard = React.memo(({
   return (
     <motion.div 
       layout
-      className="bg-[#0a0a0a] p-3 rounded-xl border border-white/10 relative overflow-hidden"
+      className="bg-[#0a0a0a] p-4 rounded-2xl border border-white/5 relative overflow-hidden active:scale-[0.98] transition-all duration-200"
     >
-      <div className={`absolute top-0 left-0 w-0.5 h-full ${trade.type === 'pair' ? 'bg-accent' : trade.type === 'buy' ? 'bg-profit' : 'bg-loss'}`} />
+      <div className={`absolute top-0 left-0 w-1.5 h-full ${trade.type === 'pair' ? 'bg-accent/40' : trade.type === 'buy' ? 'bg-profit/40' : 'bg-loss/40'}`} />
       
-      <div className="flex justify-between items-center mb-2 pl-2">
-          <span className={`text-[7px] px-1 py-0.5 rounded-sm font-semibold uppercase tracking-widest ${
-            trade.type === 'pair' ? 'bg-accent/10 text-accent' : trade.type === 'buy' ? 'bg-profit/10 text-profit' : 'bg-loss/10 text-loss'
-          }`}>
-            {trade.type}
-          </span>
-          <div className="flex gap-1">
-            <button onClick={() => onEdit(trade)} className="p-1 hover:bg-white/10 rounded text-slate-500"><Pencil size={12} /></button>
-            <button onClick={() => onDelete(trade.id)} className="p-1 hover:bg-loss/20 rounded text-slate-500 hover:text-loss"><Trash2 size={12} /></button>
+      <div className="flex justify-between items-center mb-4 pl-2">
+          <div className="flex items-center gap-2">
+            <span className={`text-[8px] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest ${
+              trade.type === 'pair' ? 'bg-accent/10 text-accent ring-1 ring-accent/20' : trade.type === 'buy' ? 'bg-profit/10 text-profit ring-1 ring-profit/20' : 'bg-loss/10 text-loss ring-1 ring-loss/20'
+            }`}>
+              {trade.type}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => onEdit(trade)} className="p-3 bg-white/5 hover:bg-white/10 rounded-xl text-slate-400 active:scale-90 transition-all haptic-interaction"><Pencil size={15} /></button>
+            <button onClick={() => onDelete(trade.id)} className="p-3 bg-loss/10 hover:bg-loss/20 rounded-xl text-loss active:scale-90 transition-all haptic-interaction"><Trash2 size={15} /></button>
           </div>
       </div>
 
       <div className="flex justify-between items-end pl-2">
-        <div className="flex gap-4">
+        <div className="grid grid-cols-2 gap-4 flex-1">
           <div>
-            <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">In</p>
-            <p className="text-sm font-medium text-white">₹{Number(isBuyAvailable ? trade.buyAmount : 0).toLocaleString()}</p>
-            {isBuyAvailable && <p className="text-[8px] font-mono text-slate-500">{formatDate(trade.buyDate)}</p>}
+            <p className="text-[9px] uppercase font-bold text-slate-600 mb-1 tracking-widest leading-none">Entry</p>
+            <p className="text-base font-sans font-medium text-white tabular-nums leading-none">₹{Number(isBuyAvailable ? trade.buyAmount : 0).toLocaleString()}</p>
+            {isBuyAvailable && <p className="text-[10px] font-mono text-slate-500 mt-1.5">{formatDate(trade.buyDate)}</p>}
           </div>
           <div>
-            <p className="text-[7px] uppercase font-semibold text-slate-600 mb-0.5 tracking-tighter">Out</p>
+            <p className="text-[9px] uppercase font-bold text-slate-600 mb-1 tracking-widest leading-none">Exit</p>
             {isSellAvailable ? (
               <>
-                <p className="text-sm font-medium text-white">₹{Number(trade.sellAmount).toLocaleString()}</p>
-                <p className="text-[8px] font-mono text-slate-500">{formatDate(trade.sellDate)}</p>
+                <p className="text-base font-sans font-medium text-white tabular-nums leading-none">₹{Number(trade.sellAmount).toLocaleString()}</p>
+                <p className="text-[10px] font-mono text-slate-500 mt-1.5">{formatDate(trade.sellDate)}</p>
               </>
-            ) : <p className="text-xs font-medium text-accent italic py-1">Open</p>}
+            ) : (
+              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-accent/10 border border-accent/20">
+                <span className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
+                <span className="text-[9px] font-bold text-accent uppercase tracking-tighter">Open</span>
+              </div>
+            )}
           </div>
         </div>
-        <div className="text-right pb-1">
-          <p className={`font-mono text-sm font-semibold ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
+        <div className="text-right flex flex-col items-end">
+          <p className="text-[9px] uppercase font-bold text-slate-600 mb-1 tracking-widest leading-none">Result</p>
+          <p className={`font-sans text-xl font-bold tabular-nums leading-none ${profit >= 0 ? 'text-profit' : 'text-loss'}`}>
             {profit >= 0 ? '+' : ''}₹{Math.abs(profit).toLocaleString()}
           </p>
         </div>
@@ -740,31 +748,31 @@ export default function App() {
               {/* Left Column */}
               <div className="space-y-4">
                 {/* Hero Card - Compact */}
-                <div className="glass-card p-5 flex items-center justify-between relative group overflow-hidden bg-[#0a0a0a]">
+                <div className="glass-card p-6 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between relative group overflow-hidden bg-[#0a0a0a] gap-4">
                   <div className="flex flex-col">
-                    <h2 className="text-[10px] font-medium uppercase tracking-widest text-slate-500 mb-1">
+                    <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-2 sm:mb-1">
                       Portfolio Valuation
                     </h2>
-                    <div className={`text-4xl font-sans font-light tabular-nums tracking-tight leading-none ${
+                    <div className={`text-5xl sm:text-4xl font-sans font-light tabular-nums tracking-tight leading-none ${
                         totalNetProfit >= 0 ? 'text-white' : 'text-loss'
                     }`}>
-                      <span className="opacity-80 mr-1 text-2xl font-light text-slate-400">₹</span>
+                      <span className="opacity-80 mr-1 text-2xl sm:text-2xl font-light text-slate-400">₹</span>
                       {totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-1">
-                    <div className="flex items-center gap-2 bg-[#111111] px-3 py-1.5 rounded-full border border-white/10">
+                  <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-2">
+                    <div className="flex items-center gap-2 bg-[#111111] px-4 py-2 sm:px-3 sm:py-1.5 rounded-full border border-white/10 shadow-inner">
                       <div className={`w-1.5 h-1.5 rounded-full ${
-                        totalNetProfit > 0 ? 'bg-profit' : totalNetProfit < 0 ? 'bg-loss animate-pulse' : 'bg-slate-500'
+                        totalNetProfit > 0 ? 'bg-profit shadow-[0_0_8px_#10b981]' : totalNetProfit < 0 ? 'bg-loss animate-pulse shadow-[0_0_8px_#ef4444]' : 'bg-slate-500'
                       }`} />
-                      <span className="text-[9px] uppercase font-bold tracking-widest text-[#e5e5e5]">
+                      <span className="text-[10px] sm:text-[9px] uppercase font-bold tracking-widest text-[#e5e5e5]">
                         {totalNetProfit > 0 ? 'Bullish' : totalNetProfit < 0 ? 'Bearish' : 'Neutral'}
                       </span>
                     </div>
                     {lastSynced && (
-                      <div className="flex items-center gap-1 text-[8px] uppercase font-bold tracking-tighter text-slate-600">
-                        <Clock size={8} /> {lastSynced}
+                      <div className="flex items-center gap-1.5 text-[9px] sm:text-[8px] uppercase font-bold tracking-[0.1em] text-slate-600">
+                        <Clock size={10} /> {lastSynced}
                       </div>
                     )}
                   </div>
@@ -795,29 +803,28 @@ export default function App() {
                     </motion.div>
                 )}
 
-                {/* Form Card - Compact */}
-                <div className={`glass-card p-5 transition-all duration-500 ${editingId ? 'ring-1 ring-[#0066FF] bg-[#111111]' : 'bg-[#0a0a0a]'}`}>
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-heading font-semibold text-sm flex items-center gap-2">
-                       {editingId ? <Pencil className="text-accent" size={14} /> : <Plus className="text-accent" size={14} />}
-                       {editingId ? 'Edit Transaction' : 'New Transaction'}
+                <div className={`glass-card p-6 sm:p-5 transition-all duration-500 ${editingId ? 'ring-2 ring-accent bg-[#111111]' : 'bg-[#0a0a0a]'}`}>
+                  <div className="flex justify-between items-center mb-6 sm:mb-4">
+                    <h3 className="font-heading font-bold text-base sm:text-sm flex items-center gap-2 uppercase tracking-widest leading-none">
+                       {editingId ? <Pencil className="text-accent" size={16} /> : <Plus className="text-accent" size={16} />}
+                       {editingId ? 'Update Entry' : 'New Transaction'}
                     </h3>
                     
                     {editingId && (
                        <button 
                         onClick={cancelEdit}
-                        className="flex items-center gap-2 text-[10px] uppercase font-bold text-slate-500 hover:text-loss transition-colors"
+                        className="flex items-center gap-2 text-[10px] uppercase font-bold text-slate-500 hover:text-loss transition-colors px-3 py-1.5 bg-white/5 rounded-lg haptic-interaction"
                        >
                          <XCircle size={14} /> Cancel
                        </button>
                     )}
                   </div>
 
-                  <form onSubmit={handleAddTrade} className="space-y-4" noValidate>
-                    <div className="space-y-4">
+                  <form onSubmit={handleAddTrade} className="space-y-6 sm:space-y-4" noValidate>
+                    <div className="space-y-6 sm:space-y-4">
                       {/* Buy Section */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                        <div className="relative group/field">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-wrap">
+                        <div className="relative group/field flex-1">
                           <input 
                             type="date" 
                             value={formData.buyDate}
@@ -825,41 +832,42 @@ export default function App() {
                               setFormData({...formData, buyDate: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'buyDate'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-1.5 pt-5 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight ${
-                              validationErrors.includes('buyDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
+                            className={`peer w-full bg-black border rounded-2xl sm:rounded-xl px-4 py-3 sm:py-1.5 pt-7 sm:pt-5 text-sm focus:outline-hidden focus:ring-2 transition-all font-mono tracking-tight appearance-none ${
+                              validationErrors.includes('buyDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent/20'
                             }`}
                           />
-                          <label className={`absolute left-4 top-2 text-[10px] uppercase font-bold tracking-widest transition-all ${
+                          <label className={`absolute left-4 top-3 sm:top-2 text-[10px] uppercase font-bold tracking-[0.2em] transition-all leading-none ${
                             validationErrors.includes('buyDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Buy Date
+                            Entry Date
                           </label>
                         </div>
-                        <div className="relative group/field">
+                        <div className="relative group/field flex-1">
                           <input 
                             type="number" 
                             placeholder=" "
                             step="0.01"
+                            inputMode="decimal"
                             value={formData.buyAmount}
                             onChange={e => {
                               setFormData({...formData, buyAmount: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'buyAmount'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-1.5 pt-5 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
-                              validationErrors.includes('buyAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
+                            className={`peer w-full bg-black border rounded-2xl sm:rounded-xl px-4 py-3 sm:py-1.5 pt-7 sm:pt-5 text-base sm:text-sm focus:outline-hidden focus:ring-2 transition-all font-mono placeholder:opacity-0 ${
+                              validationErrors.includes('buyAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent/20'
                             }`}
                           />
-                          <label className={`absolute left-4 top-2 text-[10px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-[10px] ${
+                          <label className={`absolute left-4 top-3 sm:top-2 text-[10px] uppercase font-bold tracking-[0.2em] transition-all peer-placeholder-shown:top-5 sm:peer-placeholder-shown:top-4 peer-placeholder-shown:text-base sm:peer-placeholder-shown:text-sm peer-focus:top-3 sm:peer-focus:top-2 peer-focus:text-[10px] leading-none ${
                             validationErrors.includes('buyAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Buy Price (₹)
+                            Entry Price (₹)
                           </label>
                         </div>
                       </div>
 
                       {/* Sell Section */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                        <div className="relative group/field">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="relative group/field flex-1">
                           <input 
                             type="date" 
                             value={formData.sellDate}
@@ -867,34 +875,35 @@ export default function App() {
                               setFormData({...formData, sellDate: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'sellDate'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-1.5 pt-5 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight ${
-                              validationErrors.includes('sellDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
+                            className={`peer w-full bg-black border rounded-2xl sm:rounded-xl px-4 py-3 sm:py-1.5 pt-7 sm:pt-5 text-sm focus:outline-hidden focus:ring-2 transition-all font-mono tracking-tight appearance-none ${
+                              validationErrors.includes('sellDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent/20'
                             }`}
                           />
-                          <label className={`absolute left-4 top-2 text-[10px] uppercase font-bold tracking-widest transition-all ${
+                          <label className={`absolute left-4 top-3 sm:top-2 text-[10px] uppercase font-bold tracking-[0.2em] transition-all leading-none ${
                             validationErrors.includes('sellDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Sell Date
+                            Exit Date
                           </label>
                         </div>
-                        <div className="relative group/field">
+                        <div className="relative group/field flex-1">
                           <input 
                             type="number" 
                             placeholder=" "
                             step="0.01"
+                            inputMode="decimal"
                             value={formData.sellAmount}
                             onChange={e => {
                               setFormData({...formData, sellAmount: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'sellAmount'));
                             }}
-                            className={`peer w-full bg-black border rounded-xl px-4 py-1.5 pt-5 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
-                              validationErrors.includes('sellAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent'
+                            className={`peer w-full bg-black border rounded-2xl sm:rounded-xl px-4 py-3 sm:py-1.5 pt-7 sm:pt-5 text-base sm:text-sm focus:outline-hidden focus:ring-2 transition-all font-mono placeholder:opacity-0 ${
+                              validationErrors.includes('sellAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent/20'
                             }`}
                           />
-                          <label className={`absolute left-4 top-2 text-[10px] uppercase font-bold tracking-widest transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-[10px] ${
+                          <label className={`absolute left-4 top-3 sm:top-2 text-[10px] uppercase font-bold tracking-[0.2em] transition-all peer-placeholder-shown:top-5 sm:peer-placeholder-shown:top-4 peer-placeholder-shown:text-base sm:peer-placeholder-shown:text-sm peer-focus:top-3 sm:peer-focus:top-2 peer-focus:text-[10px] leading-none ${
                             validationErrors.includes('sellAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
                           }`}>
-                            Sell Price (₹)
+                            Exit Price (₹)
                           </label>
                         </div>
                       </div>
@@ -902,10 +911,12 @@ export default function App() {
 
                     <button 
                       type="submit"
-                      className="w-full bg-[#0066FF] hover:bg-white text-white hover:text-black font-semibold py-3 rounded-xl transition-all active:scale-[0.98] mt-6 flex items-center justify-center gap-2 uppercase tracking-[0.1em] text-xs haptic-interaction"
+                      className={`w-full py-4 sm:py-3.5 rounded-2xl sm:rounded-xl font-bold uppercase tracking-[0.3em] text-xs transition-all shadow-lg active:scale-[0.98] haptic-interaction flex items-center justify-center gap-3 ${
+                        editingId ? 'bg-white text-black hover:bg-slate-200' : 'bg-[#0066FF] text-white hover:bg-[#0055DD]'
+                      }`}
                     >
-                      {editingId ? <RefreshCw size={16} /> : <Plus size={16} />}
-                      {editingId ? 'Update Transaction' : `${formMode === 'pair' ? 'Add Deal' : formMode === 'buy' ? 'Add Buy Entry' : 'Add Sell Entry'}`}
+                      {editingId ? <RefreshCw size={18} strokeWidth={2.5} /> : <Plus size={18} strokeWidth={2.5} />}
+                      {editingId ? 'Update Deal' : `${formMode === 'pair' ? 'Add Deal' : formMode === 'buy' ? 'Add Buy Entry' : 'Add Sell Entry'}`}
                     </button>
                   </form>
                 </div>
@@ -1001,44 +1012,54 @@ export default function App() {
                         )}
                       </tbody>
                     </table>
-                  </div>
-
-                  {/* Mobile/List View - Switchable */}
-                    <div className="sm:hidden space-y-2">
-                        {isGroupedByDate ? (
-                          dailyReports.map((report) => (
-                            <motion.div 
-                             key={report.date}
-                             layout
-                             className="bg-[#0a0a0a] p-3 rounded-xl border border-white/10 relative overflow-hidden"
-                            >
-                               <div className={`absolute top-0 left-0 w-0.5 h-full ${report.netCashflow >= 0 ? 'bg-profit' : 'bg-loss'}`} />
-                               <div className="flex justify-between items-center mb-1 pl-2">
-                                 <span className="text-[10px] font-mono font-medium text-slate-400">{formatDate(report.date)}</span>
-                                 <span className={`text-[9px] font-bold ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                   {report.netCashflow >= 0 ? '+' : '-'}₹{Math.abs(report.netCashflow).toLocaleString()}
+                  <div className="sm:hidden space-y-3">
+                      {isGroupedByDate ? (
+                        dailyReports.map((report) => (
+                          <motion.div 
+                           key={report.date}
+                           layout
+                           className="bg-[#0a0a0a] p-4 rounded-2xl border border-white/5 relative overflow-hidden active:scale-[0.98] transition-transform"
+                          >
+                             <div className={`absolute top-0 left-0 w-1 h-full ${report.netCashflow >= 0 ? 'bg-profit/40' : 'bg-loss/40'}`} />
+                             <div className="flex justify-between items-center mb-3 pl-2">
+                               <div className="flex flex-col">
+                                 <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest leading-none mb-1">Session Date</span>
+                                 <span className="text-sm font-mono font-medium text-slate-200 leading-none">{formatDate(report.date)}</span>
+                               </div>
+                               <div className="text-right">
+                                 <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest leading-none mb-1 block">Net Profit</span>
+                                 <span className={`text-base font-bold font-mono leading-none ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
+                                   {report.netCashflow >= 0 ? '+' : ''}₹{Math.abs(report.netCashflow).toLocaleString()}
                                  </span>
                                </div>
-                               <div className="flex justify-between pl-2">
-                                 <div className="text-[10px] font-medium text-white/60">IN: <span className="text-white">₹{report.buyTotal.toLocaleString()}</span></div>
-                                 <div className="text-[10px] font-medium text-white/60">OUT: <span className="text-white">₹{report.sellTotal.toLocaleString()}</span></div>
+                             </div>
+                             <div className="flex justify-between pl-2 pt-2 border-t border-white/5">
+                               <div className="flex flex-col">
+                                 <span className="text-[8px] uppercase font-bold text-slate-600 tracking-tighter">Buy Total</span>
+                                 <span className="text-xs font-mono text-white">₹{report.buyTotal.toLocaleString()}</span>
                                </div>
-                            </motion.div>
-                          ))
-                        ) : (
-                          trades.map((trade) => (
-                            <MobileTradeCard 
-                              key={trade.id} 
-                              trade={trade} 
-                              onEdit={handleEditTrade} 
-                              onDelete={handleDeleteTrade} 
-                            />
-                          ))
-                        )}
-                    </div>
+                               <div className="flex flex-col items-end">
+                                 <span className="text-[8px] uppercase font-bold text-slate-600 tracking-tighter">Sell Total</span>
+                                 <span className="text-xs font-mono text-white">₹{report.sellTotal.toLocaleString()}</span>
+                               </div>
+                             </div>
+                          </motion.div>
+                        ))
+                      ) : (
+                        trades.map((trade) => (
+                          <MobileTradeCard 
+                            key={trade.id} 
+                            trade={trade} 
+                            onEdit={handleEditTrade} 
+                            onDelete={handleDeleteTrade} 
+                          />
+                        ))
+                      )}
+                  </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
           ) : (
             <motion.div 
               key="reports"
@@ -1093,31 +1114,43 @@ export default function App() {
                 </div>
 
                 {/* Mobile Card View */}
-                <div className="sm:hidden p-4 space-y-3 bg-black">
+                <div className="sm:hidden p-4 space-y-4 bg-black">
                   {dailyReports.length === 0 && (
-                    <div className="py-20 text-center text-slate-500 font-light italic text-sm">
+                    <div className="py-24 text-center text-slate-500 font-light italic text-sm">
                       Insufficient data for daily reports.
                     </div>
                   )}
                   {dailyReports.map((report, idx) => (
-                    <div key={idx} className="bg-[#0a0a0a] p-4 rounded-xl border border-white/5 flex flex-col gap-3">
-                      <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                        <span className="text-[10px] font-mono font-medium text-slate-400">{formatDate(report.date)}</span>
-                        <span className={`text-xs font-bold font-mono ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
-                          {report.netCashflow >= 0 ? '+' : ''}₹{Math.abs(report.netCashflow).toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
+                    <motion.div 
+                      key={idx} 
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="bg-[#0a0a0a] p-5 rounded-2xl border border-white/5 flex flex-col gap-4 relative overflow-hidden active:scale-[0.98] transition-transform"
+                    >
+                      <div className={`absolute top-0 left-0 w-1.5 h-full ${report.netCashflow >= 0 ? 'bg-profit/40' : 'bg-loss/40'}`} />
+                      <div className="flex justify-between items-start pl-2">
                         <div className="flex flex-col">
-                          <span className="text-[8px] uppercase text-slate-500 font-bold tracking-widest">Inflow</span>
-                          <span className="text-xs font-mono text-white">₹{report.buyTotal.toLocaleString()}</span>
+                          <span className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.2em] mb-1">Trade Date</span>
+                          <span className="text-base font-mono font-medium text-slate-200">{formatDate(report.date)}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.2em] mb-1 block">Day P&L</span>
+                          <span className={`text-xl font-bold font-mono ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
+                            {report.netCashflow >= 0 ? '+' : ''}₹{Math.abs(report.netCashflow).toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 pl-2 pt-4 border-t border-white/5">
+                        <div className="flex flex-col">
+                          <span className="text-[9px] uppercase font-bold text-slate-600 tracking-widest mb-1">Buy Volume</span>
+                          <span className="text-sm font-mono text-white">₹{report.buyTotal.toLocaleString()}</span>
                         </div>
                         <div className="flex flex-col items-end">
-                          <span className="text-[8px] uppercase text-slate-500 font-bold tracking-widest">Outflow</span>
-                          <span className="text-xs font-mono text-white">₹{report.sellTotal.toLocaleString()}</span>
+                          <span className="text-[9px] uppercase font-bold text-slate-600 tracking-widest mb-1">Sell Volume</span>
+                          <span className="text-sm font-mono text-white">₹{report.sellTotal.toLocaleString()}</span>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </div>
