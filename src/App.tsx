@@ -754,16 +754,18 @@ export default function App() {
                     <div className={`text-4xl font-sans font-light tabular-nums tracking-tight leading-none ${
                         totalNetProfit >= 0 ? 'text-white' : 'text-loss'
                     }`}>
-                      <span className="opacity-40 mr-1 text-2xl font-light">₹</span>
+                      <span className="opacity-80 mr-1 text-2xl font-light text-slate-400">₹</span>
                       {totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </div>
                   </div>
 
                   <div className="flex flex-col items-end gap-1">
                     <div className="flex items-center gap-2 bg-[#111111] px-3 py-1.5 rounded-full border border-white/10">
-                      <div className={`w-1.5 h-1.5 rounded-full ${totalNetProfit >= 0 ? 'bg-profit' : 'bg-loss animate-pulse'}`} />
+                      <div className={`w-1.5 h-1.5 rounded-full ${
+                        totalNetProfit > 0 ? 'bg-profit' : totalNetProfit < 0 ? 'bg-loss animate-pulse' : 'bg-slate-500'
+                      }`} />
                       <span className="text-[9px] uppercase font-bold tracking-widest text-[#e5e5e5]">
-                        {totalNetProfit >= 0 ? 'Bullish' : 'Bearish'}
+                        {totalNetProfit > 0 ? 'Bullish' : totalNetProfit < 0 ? 'Bearish' : 'Neutral'}
                       </span>
                     </div>
                     {lastSynced && (
