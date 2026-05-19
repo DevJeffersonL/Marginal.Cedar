@@ -754,7 +754,7 @@ export default function App() {
                       Portfolio Valuation
                     </h2>
                     <div className={`text-4xl sm:text-3xl font-sans font-light tabular-nums tracking-tighter leading-none ${
-                        totalNetProfit >= 0 ? 'text-white' : 'text-loss'
+                        totalNetProfit > 0 ? 'text-white' : totalNetProfit < 0 ? 'text-loss' : 'text-slate-400'
                     }`}>
                       <span className="opacity-60 mr-0.5 text-xl sm:text-xl font-light text-slate-400">₹</span>
                       {totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
@@ -764,9 +764,9 @@ export default function App() {
                   <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-1.5">
                     <div className="flex items-center gap-1.5 bg-[#0f0f0f] px-3 py-1.5 sm:px-2.5 sm:py-1 rounded-full border border-white/5 shadow-inner">
                       <div className={`w-1.5 h-1.5 rounded-full ${
-                        totalNetProfit > 0 ? 'bg-profit shadow-[0_0_8px_#10b981]' : totalNetProfit < 0 ? 'bg-loss animate-pulse shadow-[0_0_8px_#ef4444]' : 'bg-slate-600'
+                        totalNetProfit > 0 ? 'bg-profit shadow-[0_0_8px_#10b981]' : totalNetProfit < 0 ? 'bg-loss animate-pulse shadow-[0_0_8px_#ef4444]' : 'bg-slate-500'
                       }`} />
-                      <span className="text-[9px] sm:text-[8.5px] uppercase font-bold tracking-widest text-slate-300">
+                      <span className="text-[9px] sm:text-[8.5px] uppercase font-bold tracking-widest text-slate-400">
                         {totalNetProfit > 0 ? 'Bullish' : totalNetProfit < 0 ? 'Bearish' : 'Neutral'}
                       </span>
                     </div>
@@ -1020,16 +1020,16 @@ export default function App() {
                            layout
                            className="bg-[#0a0a0a] p-4 rounded-2xl border border-white/5 relative overflow-hidden active:scale-[0.98] transition-transform"
                           >
-                             <div className={`absolute top-0 left-0 w-1 h-full ${report.netCashflow >= 0 ? 'bg-profit/40' : 'bg-loss/40'}`} />
+                             <div className={`absolute top-0 left-0 w-1 h-full ${report.netCashflow > 0 ? 'bg-profit/40' : report.netCashflow < 0 ? 'bg-loss/40' : 'bg-slate-500/40'}`} />
                              <div className="flex justify-between items-center mb-3 pl-2">
                                <div className="flex flex-col">
                                  <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest leading-none mb-1">Session Date</span>
                                  <span className="text-sm font-mono font-medium text-slate-200 leading-none">{formatDate(report.date)}</span>
                                </div>
                                <div className="text-right">
-                                 <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest leading-none mb-1 block">Net Profit</span>
-                                 <span className={`text-base font-bold font-mono leading-none ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
-                                   {report.netCashflow >= 0 ? '+' : ''}₹{Math.abs(report.netCashflow).toLocaleString()}
+                                 <span className="text-[9px] uppercase font-bold text-slate-500 tracking-widest community-none mb-1 block">Net Profit</span>
+                                 <span className={`text-base font-bold font-mono leading-none ${report.netCashflow > 0 ? 'text-profit' : report.netCashflow < 0 ? 'text-loss' : 'text-slate-400'}`}>
+                                   {report.netCashflow > 0 ? '+' : ''}₹{Math.abs(report.netCashflow).toLocaleString()}
                                  </span>
                                </div>
                              </div>
@@ -1127,7 +1127,7 @@ export default function App() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="bg-[#0a0a0a] p-5 rounded-2xl border border-white/5 flex flex-col gap-4 relative overflow-hidden active:scale-[0.98] transition-transform"
                     >
-                      <div className={`absolute top-0 left-0 w-1.5 h-full ${report.netCashflow >= 0 ? 'bg-profit/40' : 'bg-loss/40'}`} />
+                      <div className={`absolute top-0 left-0 w-1.5 h-full ${report.netCashflow > 0 ? 'bg-profit/40' : report.netCashflow < 0 ? 'bg-loss/40' : 'bg-slate-500/40'}`} />
                       <div className="flex justify-between items-start pl-2">
                         <div className="flex flex-col">
                           <span className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.2em] mb-1">Trade Date</span>
@@ -1135,8 +1135,8 @@ export default function App() {
                         </div>
                         <div className="text-right">
                           <span className="text-[10px] uppercase font-bold text-slate-500 tracking-[0.2em] mb-1 block">Day P&L</span>
-                          <span className={`text-xl font-bold font-mono ${report.netCashflow >= 0 ? 'text-profit' : 'text-loss'}`}>
-                            {report.netCashflow >= 0 ? '+' : ''}₹{Math.abs(report.netCashflow).toLocaleString()}
+                          <span className={`text-xl font-bold font-mono ${report.netCashflow > 0 ? 'text-profit' : report.netCashflow < 0 ? 'text-loss' : 'text-slate-400'}`}>
+                            {report.netCashflow > 0 ? '+' : ''}₹{Math.abs(report.netCashflow).toLocaleString()}
                           </span>
                         </div>
                       </div>
