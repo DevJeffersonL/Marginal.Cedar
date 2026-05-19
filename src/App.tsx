@@ -18,10 +18,23 @@ import {
   Pencil,
   XCircle,
   Clock,
-  LucideIcon
+  LucideIcon,
+  BarChart2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import debounce from 'lodash.debounce';
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  Cell
+} from 'recharts';
 
 // --- Types ---
 interface Trade {
@@ -332,6 +345,94 @@ const MobileTradeCard = React.memo(({
         </div>
       </div>
     </motion.div>
+  );
+});
+
+const PLChart = React.memo(({ reports }: { reports: any[] }) => {
+  const chartData = useMemo(() => {
+    let cumulative = 0;
+    return [...reports].reverse().map(r => {
+      cumulative += r.netCashflow;
+      return {
+        date: formatDate(r.date),
+        pnl: r.netCashflow,
+        cumulative: cumulative,
+        color: r.netCashflow >= 0 ? '#10b981' : '#ef4444'
+      };
+    });
+  }, [reports]);
+
+  if (reports.length === 0) return (
+    <div className="glass-card p-8 h-[240px] flex flex-col items-center justify-center text-slate-600 bg-[#070707] border border-dashed border-white/10">
+      <BarChart2 size={32} className="mb-3 opacity-20" />
+      <p className="text-[10px] font-bold uppercase tracking-[0.2em]">Awaiting performance data</p>
+    </div>
+  );
+
+  return (
+    <div className="glass-card p-5 h-[340px] bg-[#070707] flex flex-col">
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center gap-2">
+          <TrendingUp size={14} className="text-accent" />
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Portfolio Performance</h3>
+        </div>
+        <div className="flex items-center gap-3">
+           <div className="flex items-center gap-1.5">
+             <div className="w-1.5 h-1.5 rounded-full bg-accent" />
+             <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Cumulative</span>
+           </div>
+        </div>
+      </div>
+      <div className="flex-1 w-full mt-auto">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+            <defs>
+              <linearGradient id="colorCumulative" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2}/>
+                <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ffffff03" />
+            <XAxis 
+              dataKey="date" 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fontSize: 8, fill: '#475569', fontWeight: 600 }}
+              dy={10}
+              interval="preserveStartEnd"
+            />
+            <YAxis 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fontSize: 8, fill: '#475569', fontWeight: 600 }}
+              tickFormatter={(v) => `₹${v >= 1000 ? (v/1000).toFixed(1) + 'k' : v}`}
+            />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: '#0a0a0a', 
+                border: '1px solid rgba(255,255,255,0.05)', 
+                borderRadius: '12px',
+                padding: '12px',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+              }}
+              cursor={{ stroke: 'rgba(99, 102, 241, 0.2)', strokeWidth: 1 }}
+              labelStyle={{ color: '#64748b', fontSize: '9px', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.1em' }}
+              itemStyle={{ color: '#fff', fontSize: '12px', fontWeight: 'bold' }}
+              formatter={(value: number) => [`₹${value.toLocaleString()}`, 'Net Equity']}
+            />
+            <Area 
+              type="monotone" 
+              dataKey="cumulative" 
+              stroke="#6366f1" 
+              strokeWidth={3}
+              fillOpacity={1} 
+              fill="url(#colorCumulative)" 
+              animationDuration={2000}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 });
 
@@ -802,6 +903,8 @@ export default function App() {
                        </p>
                     </motion.div>
                 )}
+
+                <PLChart reports={dailyReports} />
 
                 <div className={`glass-card p-5 sm:p-4.5 transition-all duration-500 ${editingId ? 'ring-2 ring-accent bg-[#0f0f0f]' : 'bg-[#070707]'}`}>
                   <div className="flex justify-between items-center mb-5 sm:mb-3.5">
