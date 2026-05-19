@@ -600,14 +600,14 @@ export default function App() {
   return (
     <div className="min-h-screen pb-24 selection:bg-[#0066FF]/20 bg-black">
       {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-white/5 py-3 sm:py-4 px-4 sm:px-8 lg:px-12 flex items-center justify-between transition-all duration-500">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-accent flex items-center justify-center shrink-0 haptic-interaction">
-            <TrendingUp className="text-white" size={16} />
+      <header className="sticky top-0 z-50 glass border-b border-white/5 py-2.5 sm:py-3.5 px-4 sm:px-8 lg:px-12 flex items-center justify-between transition-all duration-500">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-accent flex items-center justify-center shrink-0 haptic-interaction shadow-[0_0_15px_rgba(0,102,255,0.3)]">
+            <TrendingUp className="text-white" size={14} />
           </div>
           <div>
-            <h1 className="font-heading font-bold text-base sm:text-xl tracking-tight leading-none text-white uppercase">Marginal</h1>
-            <p className="text-[8px] sm:text-[9px] font-mono text-slate-500 mt-0.5 sm:mt-1 uppercase tracking-[0.2em] hidden xs:block">Alpha Engine v2</p>
+            <h1 className="font-heading font-bold text-base sm:text-lg tracking-tight leading-none text-white uppercase">Marginal</h1>
+            <p className="text-[7.5px] sm:text-[8.5px] font-mono text-slate-500 mt-0.5 uppercase tracking-[0.2em] hidden xs:block">Alpha Engine v2</p>
           </div>
         </div>
 
@@ -748,31 +748,31 @@ export default function App() {
               {/* Left Column */}
               <div className="space-y-4">
                 {/* Hero Card - Compact */}
-                <div className="glass-card p-6 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between relative group overflow-hidden bg-[#0a0a0a] gap-4">
+                <div className="glass-card p-5 sm:p-4.5 flex flex-col sm:flex-row items-start sm:items-center justify-between relative group overflow-hidden bg-[#070707] gap-3">
                   <div className="flex flex-col">
-                    <h2 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 mb-2 sm:mb-1">
+                    <h2 className="text-[9px] font-bold uppercase tracking-[0.2em] text-slate-600 mb-1.5 sm:mb-1">
                       Portfolio Valuation
                     </h2>
-                    <div className={`text-5xl sm:text-4xl font-sans font-light tabular-nums tracking-tight leading-none ${
+                    <div className={`text-4xl sm:text-3xl font-sans font-light tabular-nums tracking-tighter leading-none ${
                         totalNetProfit >= 0 ? 'text-white' : 'text-loss'
                     }`}>
-                      <span className="opacity-80 mr-1 text-2xl sm:text-2xl font-light text-slate-400">₹</span>
+                      <span className="opacity-60 mr-0.5 text-xl sm:text-xl font-light text-slate-400">₹</span>
                       {totalNetProfit.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </div>
                   </div>
 
-                  <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-2">
-                    <div className="flex items-center gap-2 bg-[#111111] px-4 py-2 sm:px-3 sm:py-1.5 rounded-full border border-white/10 shadow-inner">
+                  <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-1.5">
+                    <div className="flex items-center gap-1.5 bg-[#0f0f0f] px-3 py-1.5 sm:px-2.5 sm:py-1 rounded-full border border-white/5 shadow-inner">
                       <div className={`w-1.5 h-1.5 rounded-full ${
-                        totalNetProfit > 0 ? 'bg-profit shadow-[0_0_8px_#10b981]' : totalNetProfit < 0 ? 'bg-loss animate-pulse shadow-[0_0_8px_#ef4444]' : 'bg-slate-500'
+                        totalNetProfit > 0 ? 'bg-profit shadow-[0_0_8px_#10b981]' : totalNetProfit < 0 ? 'bg-loss animate-pulse shadow-[0_0_8px_#ef4444]' : 'bg-slate-600'
                       }`} />
-                      <span className="text-[10px] sm:text-[9px] uppercase font-bold tracking-widest text-[#e5e5e5]">
+                      <span className="text-[9px] sm:text-[8.5px] uppercase font-bold tracking-widest text-slate-300">
                         {totalNetProfit > 0 ? 'Bullish' : totalNetProfit < 0 ? 'Bearish' : 'Neutral'}
                       </span>
                     </div>
                     {lastSynced && (
-                      <div className="flex items-center gap-1.5 text-[9px] sm:text-[8px] uppercase font-bold tracking-[0.1em] text-slate-600">
-                        <Clock size={10} /> {lastSynced}
+                      <div className="flex items-center gap-1 text-[8.5px] sm:text-[7.5px] uppercase font-bold tracking-[0.1em] text-slate-600">
+                        <Clock size={9} /> {lastSynced}
                       </div>
                     )}
                   </div>
@@ -803,27 +803,27 @@ export default function App() {
                     </motion.div>
                 )}
 
-                <div className={`glass-card p-6 sm:p-5 transition-all duration-500 ${editingId ? 'ring-2 ring-accent bg-[#111111]' : 'bg-[#0a0a0a]'}`}>
-                  <div className="flex justify-between items-center mb-6 sm:mb-4">
-                    <h3 className="font-heading font-bold text-base sm:text-sm flex items-center gap-2 uppercase tracking-widest leading-none">
-                       {editingId ? <Pencil className="text-accent" size={16} /> : <Plus className="text-accent" size={16} />}
-                       {editingId ? 'Update Entry' : 'New Transaction'}
+                <div className={`glass-card p-5 sm:p-4.5 transition-all duration-500 ${editingId ? 'ring-2 ring-accent bg-[#0f0f0f]' : 'bg-[#070707]'}`}>
+                  <div className="flex justify-between items-center mb-5 sm:mb-3.5">
+                    <h3 className="font-heading font-bold text-sm sm:text-[13px] flex items-center gap-2 uppercase tracking-widest leading-none">
+                       {editingId ? <Pencil className="text-accent" size={14} /> : <Plus className="text-accent" size={14} />}
+                       {editingId ? 'Update Entry' : 'New Entry'}
                     </h3>
                     
                     {editingId && (
                        <button 
                         onClick={cancelEdit}
-                        className="flex items-center gap-2 text-[10px] uppercase font-bold text-slate-500 hover:text-loss transition-colors px-3 py-1.5 bg-white/5 rounded-lg haptic-interaction"
+                        className="flex items-center gap-2 text-[9px] uppercase font-bold text-slate-500 hover:text-loss transition-colors px-2.5 py-1 bg-white/5 rounded-md haptic-interaction"
                        >
-                         <XCircle size={14} /> Cancel
+                         <XCircle size={12} /> Cancel
                        </button>
                     )}
                   </div>
 
-                  <form onSubmit={handleAddTrade} className="space-y-6 sm:space-y-4" noValidate>
-                    <div className="space-y-6 sm:space-y-4">
+                  <form onSubmit={handleAddTrade} className="space-y-5 sm:space-y-3.5" noValidate>
+                    <div className="space-y-5 sm:space-y-3.5">
                       {/* Buy Section */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-wrap">
+                      <div className="grid grid-cols-2 gap-3.5">
                         <div className="relative group/field flex-1">
                           <input 
                             type="date" 
@@ -832,12 +832,12 @@ export default function App() {
                               setFormData({...formData, buyDate: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'buyDate'));
                             }}
-                            className={`peer w-full bg-black border rounded-2xl sm:rounded-xl px-4 py-3 sm:py-1.5 pt-7 sm:pt-5 text-sm focus:outline-hidden focus:ring-2 transition-all font-mono tracking-tight appearance-none ${
-                              validationErrors.includes('buyDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent/20'
+                            className={`peer w-full bg-black border rounded-xl px-3 py-2.5 pt-6 sm:pt-5 text-[13px] focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight appearance-none ${
+                              validationErrors.includes('buyDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/5 focus:border-accent focus:ring-accent/10'
                             }`}
                           />
-                          <label className={`absolute left-4 top-3 sm:top-2 text-[10px] uppercase font-bold tracking-[0.2em] transition-all leading-none ${
-                            validationErrors.includes('buyDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                          <label className={`absolute left-3 top-2.5 sm:top-2 text-[9px] uppercase font-bold tracking-[0.2em] transition-all leading-none ${
+                            validationErrors.includes('buyDate') ? 'text-loss' : 'text-slate-600 peer-focus:text-accent'
                           }`}>
                             Entry Date
                           </label>
@@ -853,12 +853,12 @@ export default function App() {
                               setFormData({...formData, buyAmount: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'buyAmount'));
                             }}
-                            className={`peer w-full bg-black border rounded-2xl sm:rounded-xl px-4 py-3 sm:py-1.5 pt-7 sm:pt-5 text-base sm:text-sm focus:outline-hidden focus:ring-2 transition-all font-mono placeholder:opacity-0 ${
-                              validationErrors.includes('buyAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent/20'
+                            className={`peer w-full bg-black border rounded-xl px-3 py-2.5 pt-6 sm:pt-5 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
+                              validationErrors.includes('buyAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/5 focus:border-accent focus:ring-accent/10'
                             }`}
                           />
-                          <label className={`absolute left-4 top-3 sm:top-2 text-[10px] uppercase font-bold tracking-[0.2em] transition-all peer-placeholder-shown:top-5 sm:peer-placeholder-shown:top-4 peer-placeholder-shown:text-base sm:peer-placeholder-shown:text-sm peer-focus:top-3 sm:peer-focus:top-2 peer-focus:text-[10px] leading-none ${
-                            validationErrors.includes('buyAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                          <label className={`absolute left-3 top-2.5 sm:top-2 text-[9px] uppercase font-bold tracking-[0.2em] transition-all peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-focus:top-2.5 sm:peer-focus:top-2 peer-focus:text-[9px] leading-none ${
+                            validationErrors.includes('buyAmount') ? 'text-loss' : 'text-slate-600 peer-focus:text-accent'
                           }`}>
                             Entry Price (₹)
                           </label>
@@ -866,7 +866,7 @@ export default function App() {
                       </div>
 
                       {/* Sell Section */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-2 gap-3.5">
                         <div className="relative group/field flex-1">
                           <input 
                             type="date" 
@@ -875,12 +875,12 @@ export default function App() {
                               setFormData({...formData, sellDate: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'sellDate'));
                             }}
-                            className={`peer w-full bg-black border rounded-2xl sm:rounded-xl px-4 py-3 sm:py-1.5 pt-7 sm:pt-5 text-sm focus:outline-hidden focus:ring-2 transition-all font-mono tracking-tight appearance-none ${
-                              validationErrors.includes('sellDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent/20'
+                            className={`peer w-full bg-black border rounded-xl px-3 py-2.5 pt-6 sm:pt-5 text-[13px] focus:outline-hidden focus:ring-1 transition-all font-mono tracking-tight appearance-none ${
+                              validationErrors.includes('sellDate') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/5 focus:border-accent focus:ring-accent/10'
                             }`}
                           />
-                          <label className={`absolute left-4 top-3 sm:top-2 text-[10px] uppercase font-bold tracking-[0.2em] transition-all leading-none ${
-                            validationErrors.includes('sellDate') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                          <label className={`absolute left-3 top-2.5 sm:top-2 text-[9px] uppercase font-bold tracking-[0.2em] transition-all leading-none ${
+                            validationErrors.includes('sellDate') ? 'text-loss' : 'text-slate-600 peer-focus:text-accent'
                           }`}>
                             Exit Date
                           </label>
@@ -896,12 +896,12 @@ export default function App() {
                               setFormData({...formData, sellAmount: e.target.value});
                               setValidationErrors(prev => prev.filter(err => err !== 'sellAmount'));
                             }}
-                            className={`peer w-full bg-black border rounded-2xl sm:rounded-xl px-4 py-3 sm:py-1.5 pt-7 sm:pt-5 text-base sm:text-sm focus:outline-hidden focus:ring-2 transition-all font-mono placeholder:opacity-0 ${
-                              validationErrors.includes('sellAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/10 focus:border-accent focus:ring-accent/20'
+                            className={`peer w-full bg-black border rounded-xl px-3 py-2.5 pt-6 sm:pt-5 text-sm focus:outline-hidden focus:ring-1 transition-all font-mono placeholder:opacity-0 ${
+                              validationErrors.includes('sellAmount') ? 'border-loss focus:border-loss ring-loss/10' : 'border-white/5 focus:border-accent focus:ring-accent/10'
                             }`}
                           />
-                          <label className={`absolute left-4 top-3 sm:top-2 text-[10px] uppercase font-bold tracking-[0.2em] transition-all peer-placeholder-shown:top-5 sm:peer-placeholder-shown:top-4 peer-placeholder-shown:text-base sm:peer-placeholder-shown:text-sm peer-focus:top-3 sm:peer-focus:top-2 peer-focus:text-[10px] leading-none ${
-                            validationErrors.includes('sellAmount') ? 'text-loss' : 'text-slate-500 peer-focus:text-accent'
+                          <label className={`absolute left-3 top-2.5 sm:top-2 text-[9px] uppercase font-bold tracking-[0.2em] transition-all peer-placeholder-shown:top-4.5 peer-placeholder-shown:text-[13px] peer-focus:top-2.5 sm:peer-focus:top-2 peer-focus:text-[9px] leading-none ${
+                            validationErrors.includes('sellAmount') ? 'text-loss' : 'text-slate-600 peer-focus:text-accent'
                           }`}>
                             Exit Price (₹)
                           </label>
@@ -911,7 +911,7 @@ export default function App() {
 
                     <button 
                       type="submit"
-                      className={`w-full py-4 sm:py-3.5 rounded-2xl sm:rounded-xl font-bold uppercase tracking-[0.3em] text-xs transition-all shadow-lg active:scale-[0.98] haptic-interaction flex items-center justify-center gap-3 ${
+                      className={`w-full py-3.5 sm:py-3 rounded-xl font-bold uppercase tracking-[0.2em] text-[11px] transition-all shadow-lg active:scale-[0.98] haptic-interaction flex items-center justify-center gap-2.5 ${
                         editingId ? 'bg-white text-black hover:bg-slate-200' : 'bg-[#0066FF] text-white hover:bg-[#0055DD]'
                       }`}
                     >
@@ -923,29 +923,29 @@ export default function App() {
               </div>
 
               {/* Right Column - Ledger */}
-              <div className="glass-card min-h-[400px] flex flex-col overflow-hidden bg-[#000000]">
-                <div className="p-4 sm:p-5 border-b border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0a0a0a]">
-                   <div className="flex items-center gap-3">
-                    <h3 className="font-heading font-semibold text-base flex items-center gap-2 uppercase tracking-widest">
-                      <Table className="text-accent" size={16} />
-                      Transactions
+              <div className="glass-card min-h-[380px] flex flex-col overflow-hidden bg-[#000000]">
+                <div className="p-4 sm:p-4 border-b border-white/5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 bg-[#070707]">
+                   <div className="flex items-center gap-2.5">
+                    <h3 className="font-heading font-semibold text-[13px] flex items-center gap-1.5 uppercase tracking-widest leading-none">
+                      <Table className="text-accent" size={14} />
+                      Ledger
                     </h3>
-                    <div className="flex bg-black p-0.5 rounded-lg border border-white/5">
+                    <div className="flex bg-black p-0.5 rounded-md border border-white/5">
                       <button 
                         onClick={() => setIsGroupedByDate(true)}
-                        className={`px-3 py-1 rounded-md text-[8px] uppercase font-bold tracking-widest transition-all ${isGroupedByDate ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                        className={`px-2.5 py-1 rounded-sm text-[8px] uppercase font-bold tracking-widest transition-all ${isGroupedByDate ? 'bg-white/10 text-white' : 'text-slate-600 hover:text-slate-400'}`}
                       >
                         Daily
                       </button>
                       <button 
                         onClick={() => setIsGroupedByDate(false)}
-                        className={`px-3 py-1 rounded-md text-[8px] uppercase font-bold tracking-widest transition-all ${!isGroupedByDate ? 'bg-white/10 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
+                        className={`px-2.5 py-1 rounded-sm text-[8px] uppercase font-bold tracking-widest transition-all ${!isGroupedByDate ? 'bg-white/10 text-white' : 'text-slate-600 hover:text-slate-400'}`}
                       >
                         Raw
                       </button>
                     </div>
                   </div>
-                  <span className="text-[9px] font-mono text-slate-500 uppercase tracking-widest">
+                  <span className="text-[8px] font-mono text-slate-600 uppercase tracking-widest leading-none">
                     {isGroupedByDate ? `${dailyReports.length} Dates` : `${trades.length} Records`}
                   </span>
                 </div>

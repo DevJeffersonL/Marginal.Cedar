@@ -23,11 +23,11 @@
 
 @layer utilities {
   .glass {
-    @apply bg-black border border-white/15;
+    @apply bg-black/80 backdrop-blur-xl border border-white/5;
   }
   
   .glass-card {
-    @apply bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden;
+    @apply bg-[#0a0a0a] border border-white/5 rounded-2xl overflow-hidden shadow-2xl;
   }
 
   .gradient-text-profit {
